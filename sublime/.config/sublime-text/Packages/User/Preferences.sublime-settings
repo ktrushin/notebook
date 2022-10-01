@@ -1,0 +1,41 @@
+// Settings in here override those in "Default/Preferences.sublime-settings",
+// and are overridden in turn by syntax-specific settings.
+{
+	"color_scheme": "Monokai Classic.sublime-color-scheme",
+	"close_windows_when_empty": false,
+	"draw_white_space": "selection",
+	"ensure_newline_at_eof_on_save": true,
+	"folder_exclude_patterns": [
+		".svn",
+		".git",
+		".hg",
+		"CVS",
+		".Trash",
+		".Trash-*",
+		"_build*",
+		"cmake-build*"
+	],
+	"font_face": "Ubuntu Mono",
+	"font_size": 12,
+	"ignored_packages":
+	[
+		"Vintage",
+	],
+	"inactive_sheet_dimming": false,
+	"indent_to_bracket": true,
+	"index_files": true,
+	"rulers":
+	[
+		80, 100
+	],
+	"show_project_first": true,
+	"tab_size": 2,
+	"theme": "Monokai Classic.sublime-theme",
+	"translate_tabs_to_spaces": true,
+	"trim_trailing_white_space_on_save": "all",
+	"word_wrap": false,
+	"wrap_width": 80,
+
+	"monokai_pro_sidebar_font_size": 14,
+	"monokai_pro_label_font_size": 14,
+}

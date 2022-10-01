@@ -1,0 +1,8 @@
+[
+  {"keys": ["ctrl+alt+o"], "command": "project_manager", "args": {"action": "new"}},
+
+  {"keys": ["alt+u"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "forward": false}},
+  {"keys": ["alt+m"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "forward": true}},
+  {"keys": ["shift+alt+u"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "extend": true, "forward": false}},
+  {"keys": ["shift+alt+m"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "extend": true, "forward": true}},
+]
