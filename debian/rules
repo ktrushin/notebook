@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+
+# This file contains some examples of overriding build stage behavior
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+override_dh_auto_configure:
+	dh_auto_configure -- --prefix=/path/to/prefix
+
+override_dh_auto_configure:
+	<build_system_name> --prefix=debian/tmp/path/to/prefix \
+	--libdir=debian/tmp/opt/path/to/prefix/lib/x86_64-linux-gnu
+
+override_dh_auto_configure:
+	/path/to/your/custom/script.sh
+	dh_auto_configure -- <buildsystem_cli_options>
+
+override_dh_auto_build-indep:
+	$(MAKE) -C doc pdf
+
+override_dh_strip:
+	dh_strip -p <package_name><soversion> --dbg-package=<package_name><soversion>-dbg
+
+override_dh_auto_install:
+	<build_system_name> install
+	find debian/tmp/path/to/prefix/lib/x86_64-linux-gnu -name *.so.* > debian/lib<library><soname>.install
+	echo "debian/tmp/opt/foo/include/boost/" > debian/foo-boost-dev.install
+	find debian/tmp/path/to/prefix/lib/x86_64-linux-gnu -name *.a >> debian/lib<library>-dev.install
+	find debian/tmp/path/to/prefix/lib/x86_64-linux-gnu -name *.so >> debian/lib<library>-dev.install
+
+override_dh_shlibdeps:
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):debian/tmp/path/to/prefix/x86_64-linux-gnu dh_shlibdeps
+
+%:
+	dh $@ --parallel --with autoreconf

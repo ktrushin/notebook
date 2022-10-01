@@ -1,0 +1,29 @@
+[user]
+    name = Konstantin Trushin
+    email = konstantin.trushin@gmail.com
+    signingkey = E66A8DA117D536B22D9EE8965D40908F681247A8
+[core]
+    editor = nvim -c 'set clipboard+=unnamedplus'
+    autocrlf = input
+[color]
+    ui = true
+[pull]
+    rebase = preserve
+[push]
+    default = nothing
+[diff]
+    tool = meld
+    guitool = meld
+[difftool]
+    prompt = false
+[merge]
+    tool = mymeld
+    ff = false
+[mergetool "mymeld"]
+    cmd = meld --diff $LOCAL $MERGED $REMOTE --diff $BASE $LOCAL --diff $BASE $REMOTE --output=$MERGED
+[mergetool]
+    keepBackup = false
+[rebase]
+    autoStash = true
+[alias]
+    vdiff = difftool --dir-diff --no-symlinks

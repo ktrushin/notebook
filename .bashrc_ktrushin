@@ -1,0 +1,19 @@
+# synclient ClickFinger3=2
+# synclient TapButton3=2
+
+PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007"'
+PS1="\$ "
+
+export HISTTIMEFORMAT="%F %T "
+export HISTSIZE=65536
+
+alias nvim="nvim -c 'set clipboard+=unnamedplus' $@"
+export EDITOR="nvim -c 'set clipboard+=unnamedplus'"
+
+if [ -n "$PYENV_ROOT" ]; then
+  command -v pyenv > /dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+  if command -v pyenv > /dev/null; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+  fi
+fi

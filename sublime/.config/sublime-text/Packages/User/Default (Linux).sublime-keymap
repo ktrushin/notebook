@@ -1,0 +1,15 @@
+[
+  {"keys": ["ctrl+alt+o"], "command": "project_manager", "args": {"action": "new"}},
+
+  {"keys": ["alt+u"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "forward": false}},
+  {"keys": ["alt+m"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "forward": true}},
+  {"keys": ["shift+alt+u"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "extend": true, "forward": false}},
+  {"keys": ["shift+alt+m"], "command": "move_amount", "args": {"by": "lines", "amount": 10, "extend": true, "forward": true}},
+
+  {"keys": ["alt+pageup"], "command": "move", "args": {"by": "stops", "empty_line": true, "forward": false}},
+  {"keys": ["alt+pagedown"], "command": "move", "args": {"by": "stops", "empty_line": true, "forward": true}},
+  {"keys": ["shift+alt+pageup"], "command": "move", "args": {"by": "stops", "empty_line": true, "forward": false, "extend": true}},
+  {"keys": ["shift+alt+pagedown"], "command": "move", "args": {"by": "stops", "empty_line": true, "forward": true, "extend": true}},
+
+  {"keys": ["super+i"], "command": "copy_relative_path"}
+]
