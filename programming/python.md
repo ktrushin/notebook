@@ -8,3 +8,18 @@ Installing a local project in development (editable) mode:
 pip3 install -e /path/to/the/project
 ```
 where the `/path/to/the/project` directory contains the `setup.py` script.
+
+Typical list of Python packages for development in Python:
+- setuptools
+- wheel
+- twine
+- flake8
+- flake8-docstring-checker
+- pytest-flake8 or flake8-pytest
+- mypy
+- pylint
+- pylint-doc-spacing
+- pytest
+- nox
+- tox
+- tox-delay
