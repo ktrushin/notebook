@@ -37,6 +37,18 @@ map ctrl+alt+enter launch --cwd=current
 map ctrl+alt+v     launch --cwd=current --location=vsplit
 map ctrl+alt+h     launch --cwd=current --location=hsplit
 
+# Switch focus to the neighboring window in the indicated direction
+map ctrl+left neighboring_window left
+map ctrl+right neighboring_window right
+map ctrl+up neighboring_window up
+map ctrl+down neighboring_window down
+
+# Move the active window in the indicated direction
+map shift+up move_window up
+map shift+left move_window left
+map shift+right move_window right
+map shift+down move_window down
+
 scrollback_lines 8192
 scrollback_pager bash -c "exec nvim 63<&0 0</dev/null -u NONE -c 'map <silent> q :qa!<CR>' -c 'set shell=bash scrollback=100000 termguicolors laststatus=0 clipboard+=unnamedplus' -c 'autocmd TermEnter * stopinsert' -c 'autocmd TermClose * call cursor(max([0,INPUT_LINE_NUMBER-1])+CURSOR_LINE, CURSOR_COLUMN)' -c 'terminal sed </dev/fd/63 -e \"s/'$'\x1b'']8;;file:[^\]*[\]//g\" && sleep 0.01 && printf \"'$'\x1b'']2;\"' -c 'autocmd VimLeave * call system(\"xclip -o -selection c | xclip -selection c\")'"
 
