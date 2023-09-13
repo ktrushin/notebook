@@ -475,6 +475,7 @@ Embedding:
 - Pro: single operation to update/delete data
 - Con: Data dupliction
 - Con: Large documents
+
 Referencing:
 - Pro: no duplication
 - Pro: smaller documents
