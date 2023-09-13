@@ -1133,3 +1133,219 @@ regardless of which documents happen to be in the collection.
 While creating a partial index, We cannot specify both the
 `partialFilterExpression` and and the `sparse` option. Index on `_id` cannot be
 a partial index. Neither can a shard key index.
+
+### Text Indexes
+Oftentime, we store text in our docuemnts
+```
+{
+  _id: ObjectId(<some_id>),
+  productName: "MongoDB Long Sleeve T-Shirt",
+  category: "Clothing"
+}
+```
+And for certain usecases, it can be useful to search for documents based on the
+word that are part of those text fields. Though it is possible to use either
+the exact match or regex to search for the docuemnt:
+```
+> db.products.find({productName: "MongoDB Long Sleeve T-Shirt"})
+> db.products.find({productName: /T-Shirt/})
+```
+Both approaches has their own disadvantages. For the first one, a user is
+unlikely to know the exact product name. The second one implies a performance
+penalty. Text indexes are for rescue. We pass a special `"text"` keyword to
+create a text index.
+```
+> db.products.createIndex({productName: "text"})
+```
+Now we can leverage MongoDB's full text search capabilities, while avoiding
+collection scans
+```
+> db.products.find({$text: {$search: "t-shirt"}})
+```
+Under the hood, this works very similarly to multi-key indexes. The server
+processes the text field and creates an index key for every unique word in the
+string. In the case of our example document, MongoDB would create five index keys:
+- `mongodb`
+- `long`
+- `sleeve`
+- `t`
+- `shirt`
+That's because Unicode considers both spaces and hyphens as text delimiters.
+Each of the tokens are also lowercase because, by default, text indexes are case
+insensitive.
+
+With regards to performance, like multi-key indexes, we want to be aware that
+the bigger our text fields are, the more index keys per document we'll be
+producing with the following implications:
+- more keys to examine
+- increased index size (does the index fit into RAM?)
+- increased time to build the index
+- decreased write performance
+
+One strategy for reducing the number of index keys that need to be examined
+would be to create a compound text index
+```
+> db.products.createIndex({category: 1, productName: "text"})
+> db.products.find({
+  category: "Clothing",
+  $text: {$search: "t-shirt"}
+})
+```
+This allows us to limit the number of text keys that need to be inspected by
+limiting on the clothing category. We only need to examine index keys that fit
+the clothing category rather than looking all index keys.
+
+Consider the example below
+```
+$ mongosh m201
+> db.textExample.insertOne({"statement": "MongoDB is the best"})
+> db.textExample.insertOne({"statement": "MongoDB is the worst"})
+> db.textExample.createIndex({"statement": "text"})
+> db.textExample.find({$text: {$search: "MongoDB best"}})
+{_id: <id_0>, "statement": "MongoDB is the worst"}
+{_id: <id_1>, "statement": "MongoDB is the best"}
+```
+Since text queries logically "or" each delimeted word, searching for
+"MongoDB best" means searching for any documents that include "MongDB" or any
+document that include the word "best". To address the above issue, we can
+project the special textScore value to our returned results.
+```
+> db.textExample.find({$text: {$search: "MongoDB best"}}, {score: {$meta: "textScore"}})
+{_id: <id_0>, "statement": "MongoDB is the worst", score: 0.75}
+{_id: <id_1>, "statement": "MongoDB is the best", score: 1.5}
+```
+The `$text` operator assigns a score to each document based on the relevance of
+that document for a given search query. We can sort by the same projected field:
+```
+> db.textExample
+  .find({$text: {$search: "MongoDB best"}}, {score: {$meta: "textScore"}})
+  .sort({score: {$meta: "textScore"}})
+{_id: <id_1>, "statement": "MongoDB is the best", score: 1.5}
+{_id: <id_0>, "statement": "MongoDB is the worst", score: 0.75}
+```
+
+### Collations
+Collations allows users to specify language-specific rules for string
+comparisons. A collation is defined in MongoDB by the follwoing options:
+```
+{
+  locale: <string>,
+  caseLevel: <boolean>,
+  caseFirst: <string>,
+  strength: <int>,
+  numericOrdering: <boolean>,
+  alternate: <string>,
+  maxVariable: <string>,
+  backward: <boolean>
+}
+```
+`locale` determines the ICU supported locale.
+
+Collations can be defined in several different levels. We can define a collation
+for a collection, which means that all queries and indexes created in such
+collection will be using that particular collation.
+```
+> use m201
+> db.createCollection("foreign_text", {collation: {locale: "pt"}})
+> db.foreign_text.insert({"name": "Maximo", "text": "Bom dia minha gente!"})
+> db.foreign_text.find({_id: {$exists: 1}}).explain()
+{
+  "queryPlanner": {
+    "collation": {
+      "locale": "pt"
+    },
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "indexName": "_id_",
+        "collation": {
+          "locale": "pt"
+        }
+      }
+    }
+  }
+}
+```
+We can use collations for specific requests like queries and aggregations, for
+example, where we are defining a different collation that the one used and
+defined for the particular collection that supports those find requests or
+aggregates
+```
+> db.foreign_text.find({_id: {$exists: 1}}).collation({locale: "it"})
+{_id: <some_id>, "name": "Maximo", "text": "Bom dia minha gente!"}
+> db.foreign_text.aggregate([{$match: {_id: {$exists: 1}}}], {collation: {locale: "es"}})
+{_id: <some_id>, "name": "Maximo", "text": "Bom dia minha gente!"}
+```
+We can even specify different collations for our indexes. This way we can create
+an index on name that overrides the default collation or any collection level
+defined collations.
+```
+> db.foreing_text.createIndex({name: 1}, {collation: {locale: "it"}})
+```
+To enable the use of the index on a particular field on a query that uses the
+exaclty that field, the query must match the collation of the index. In the
+first query below, we use a collection scan and the collation to satisfy the
+query is the underlying collation of our collection. In the second query, we
+have an index scan since the query collation matches the index collation.
+```
+> db.foreing_text.find({name: "Maximo"}).explain()
+{
+  "queryPlanner": {
+    "collation": {
+      "locale": "pt"
+    },
+    "winningPlan": {
+      "stage": "COLLSCAN"
+    }
+  }
+}
+> db.foreing_text.find({name: "Maximo"}).collation({locale: "it"}).explain()
+{
+  "queryPlanner": {
+    "collation": {
+      "locale": "it"
+    },
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "indexName": "name_1",
+        "collation": {
+          "locale": "it"
+        },
+
+      }
+    }
+  }
+}
+```
+
+Being able to correctly march match and sort text space on a given local is
+mandatory for many use cases. Collations allow that correctness. Collations
+offer a marginal performance impact and should most definitely be use for
+correctness.
+
+Another benefit of introducing collations is the ability to support
+case-insensitive indexes. To enable this, we can simply define a collection with
+a given local on our collection and setting the `strength` of that collation to
+to 1, which offers primary level of comparison, ignoring case and diacritics.
+```
+> db.createCollection("no_sensitivity", {collation: {locale: "en", strength: 1}})
+> db.no_sensitivity.insert({name: "aaaaa"})
+> db.no_sensitivity.insert({name: "aAAaa"})
+> db.no_sensitivity.insert({name: "AaAaa"})
+>
+> db.no_sensitivity.find().sort({name: 1})
+> db.no_sensitivity.insert({name: "aaaaa"})
+> db.no_sensitivity.insert({name: "aAAaa"})
+> db.no_sensitivity.insert({name: "AaAaa"})
+>
+> db.no_sensitivity.find().sort({name: -1})
+> db.no_sensitivity.insert({name: "aaaaa"})
+> db.no_sensitivity.insert({name: "aAAaa"})
+> db.no_sensitivity.insert({name: "AaAaa"})
+```
+Note that descending sorting produces the same set of results as the ascending
+one. This means that this particular collation allows us to have case insensitive
+queries, and therefore, the indexes as well.
