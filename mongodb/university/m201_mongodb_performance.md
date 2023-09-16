@@ -405,7 +405,7 @@ Methods for sorting
 
 Let's discuss in memory sorting first. Documents are stored on disk in an
 unknown order. When we query the server, the documents are going to be returned
-in the same order the server find them. When we add sort, the server has to read
+in the same order the server finds them. When we add sort, the server has to read
 the documents from the disk to the RAM. The server performs a sorting algorithm
 on documents in RAM. Since the sorting might be an expensive operation, the
 server aborts it if 32MB or more memory is used for that.
@@ -414,7 +414,7 @@ In an index, the key are ordered according to the field specified during index
 creation. The server can take advantage of that to provide the sort. If the
 query is using an index scan, the order of the documents returned is guaranteed
 to be sorted by the index keys. This means there is no need to perform explicit
-sort since the documents are fetch from the server in the sorted order.
+sort since the documents are fetched from the server in the sorted order.
 The documents are only going to be ordered according to the fields that make up
 the index. Query planner considers the indexes that can be helpful to either
 the query predicate or to the requested sort.
@@ -533,7 +533,7 @@ What would happened if we built a descending index keys.
 ...
 ```
 We're now walking index forward because it is descending index and we sort in
-the descending order. Before we were waling index backwards because it was an
+the descending order. Before we were walking index backwards because it was an
 ascending index and we sorted in descending order. A walking direction is
 not so much important for a single field indexes, but will be more important
 for compound indexes.
@@ -772,7 +772,7 @@ includes equality conditions on all the prefix keys that precede the sort keys
     "executionTimeMillis": 0
 ...
 ```
-This was a fast query because we were able to use out compound index for both
+This was a fast query because we were able to use our compound index for both
 filtering and sorting.
 
 If we slightly modify the query so that MongoDB is not able to use the index for
@@ -1349,3 +1349,202 @@ to 1, which offers primary level of comparison, ignoring case and diacritics.
 Note that descending sorting produces the same set of results as the ascending
 one. This means that this particular collation allows us to have case insensitive
 queries, and therefore, the indexes as well.
+
+
+### Wildcard Indexes
+Some workloads have upredictable access patterns. In such cases, each query may
+include a combinary of arbitrary large number of different fields. This can make
+it very difficult to plan an effective indexing strategy. For these workload,
+wee need a way to be able to index on multiple fields without the overhead of
+maintaining multiple indexes.
+
+Wildcard indexes give us the ability to index all fields in all documents in a
+collection.
+
+MongoDB indexes any scalar values associated with a specified path or parths.
+For fields that are documents, MongoDB descends into the document and creates
+index keys for each field-value pair it finds. For fields that are arrays,
+MongoDB creates an index key for each value of the array. If the array contains
+subdocuments, MongoDB, again, will descend through those documents and index all
+field value pairs.
+```
+> db.data.createIndex({'$**': 1})
+> db.data.find({"waveMeasurement.waves.height": 0.5}).explain()
+{
+  "queryyPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": "IXSCAN",
+    }
+  }
+}
+> db.data.find({"waveMeasurement.waves.height": 0.5, "waveMeasurement.waves.quality": "9"}).explain()
+{
+  "queryyPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": "IXSCAN",
+    }
+  }
+}
+```
+The wildcard index generates generates one virtual single field index at query
+execution time. And then the planner assesses them using the standard query
+plan score.
+
+While creating an index,uUse wildcard projection option to index only the
+subparts withing the `waveMeasurement` field.
+
+```
+> db.data.createIndex({'sub_field.$**': 1}, { "wildcardProjection": {"included_field": 1}})
+> db.data.createIndex({'sub_field.$**': 1}, { "wildcardProjection": {"exclude_field": 0}})
+```
+To index all subparts in the `waveMeasurement` field, we would do the following:
+```
+> db.data.createIndex({'$**': 1}, { "wildcardProjection": {"waveMeasurement": 1}})
+```
+See the query plan:
+```
+> db.data.find({"waveMeasurement.seastate.quality": 9}).explain()
+{
+  "queryyPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": "IXSCAN",
+    }
+  }
+}
+```
+
+This command is creating an index on `waveMeasurement.waves` and all subparts:
+```
+> db.data.createIndex({'waveMeasurement.waves.$**': 1})
+> db.data.find({"waveMeasurement.waves.height": 0.5}).explain()
+{
+  "queryyPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": "IXSCAN",
+    }
+  }
+}
+```
+
+Covered queries, that is, queries that can retrieve all the requested data from
+the index itself without needing to actually go to the collection. Queries which
+use multiple fields can benefit from wildcard indexes. However, wildcard indexes
+can only cover queries if the query is on a single field.
+The following query will be covered:
+```
+> db.data.find(
+  {"waveMeasurement.waves.height": {$gt: 0.5}},
+  {_id: 0, "waveMeasurement.waves.height": 1}
+).explain()
+```
+
+Syntax for wildcard indexes in short:
+- `db.coll.createIndex({'$**': 1})` - index everything
+- `db.coll.createIndex({'a.b.$**': 1})` - index `a.b` and all subpath
+- `db.coll.createIndex({'$**': 1}, {wildcardProjection: {a: 1}})` - index `a`
+  and all subpaths
+- `db.coll.createIndex({'$**': 1}, {wildcardProjection: {a: 0}})` - index
+  everything but `a`
+
+Wildcard indexes:
+- useful for unpredictable workloads
+- not a replacement for a traditional indexes
+- can index all fields in the collection
+- can use dot notation and wildcard projections to index a subset of field in
+  each document
+
+### Windcard Index Usecases
+Use case examples:
+- unpredictable query shapes
+- attribuite pattern
+
+#### Arbitrary query shapes
+In the following example we have collection of a loan data (`loans`):
+```
+{
+  _id: ObjectId(...),
+  date: ISODate(...),
+  loan_amount: 10000,
+  due_date: ISODate(...),
+  interest_rate: NumberDecimal(.043),
+  borrower: {
+    name: "Matt",
+    address: "123 North Street",
+    creadit_score: 800,
+    age: 18
+  }
+}
+```
+Let's say that our department wants to lear more about the types of borrowers
+we have. We know that our queries will be run agains the `borrower` subdocuemnt
+but we don't know which field of the `borrower` subdocument is going to be the
+most important one for us because we've just started exploring the data.
+So to enable this sort of open-ended data explaration, we can create a wildcard
+index on every field in the `borrower` subdocument
+```
+> db.loans.createIndex({"borrower.$**": 1})
+```
+A query on any field in the wildcard will be supported by at least a single
+field index.
+```
+> db.loans.find({"borrower.age": {$gt: 22, $lt: 27}})
+```
+
+#### Attribuite pattern (streams.k, streams.v)
+The attributes `streams_apple`, `streams_spotify`, `streams_tidal` at the
+document level:
+```
+{
+  _id: ObjectId(...),
+  title: "Despacito",
+  streams_apple: 12784,
+  streams_spotify: 18988,
+  streams_tidal: 6013
+}
+```
+The same attribuites grouped in an array:
+```
+{
+  _id: ObjectId(...),
+  title: "Despacito",
+  streams: [
+    {"k": "streams_apple", v: 12784},
+    {"k": "streams_spotify", v: 18988},
+    {"k": "streams_tidal", v: 6013}
+  ]
+}
+```
+The attribuite pattern is a data modeling strategy that we can use to index and
+query across an arbitrary number of attribuites. In this example, the
+attribuites is the number of stream that a song received on different streaming
+platforms. We've taken all the top-level fields and put them all in
+sub-documents in the same array. This way, we don't need to query accross these
+different fields. We can just query on `streams.k` or `streams.v`. We could
+create a compound index on on `streams.k` and `streams.v`, and all new
+sub-documents in the `streams` array that contain a `k` or a `v` will result in
+a new index key being created. But if we use a wildcard index on the streams
+field (`streams.$**`), then we can use an object here instead of an array of
+sub-documents:
+```
+{
+  _id: ObjectId(...),
+  title: "Despacito",
+  streams: {    streams_apple: 12784,
+    streams_spotify: 18988,
+    streams_tidal: 6013
+  }
+}
+```
+And we can assume that every field in this sub-document will-be indexed.
+```
+> db.songs.createIndex({"streams.$**": 1})
+> db.songs.find({"streams.streams_apple": {$gt: 10000}})
+```
+In this example, we didn't need to use an array of subdocuments for these
+key-value pairs and give them all a particular name like `k` and `v`. We just
+create and index on all the sub-pads in the `stream` sub-document, and then we
+can query on those sub-fields knowing that they'll be supported by an index.
