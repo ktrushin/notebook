@@ -6,3 +6,10 @@ $ wget -O - https://dl.winehq.org/wine-builds/winehq.key | \
 Note that the key should be:
 1. dearmored if required
 2. placed into the file with the `gpg` extension
+
+Another popular place for storing repository keys is
+`/usr/share/keyrings/`, e.g.
+```shell
+$ wget -O- https://apt.releases.hashicorp.com/gpg | \
+    sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+```
