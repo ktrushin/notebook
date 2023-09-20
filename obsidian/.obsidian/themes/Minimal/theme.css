@@ -1992,4 +1992,8 @@ settings:
 
 */
 
-.markdown-source-view { font-family: 'Ubuntu Mono', monospace; }
+.markdown-preview-view { max-width: 1000px; margin: auto; }
+.markdown-source-view {
+    font-family: 'Ubuntu Mono', monospace;
+    max-width: 1000px; margin: auto;
+}
