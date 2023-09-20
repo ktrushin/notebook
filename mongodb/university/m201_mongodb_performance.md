@@ -1548,3 +1548,297 @@ In this example, we didn't need to use an array of subdocuments for these
 key-value pairs and give them all a particular name like `k` and `v`. We just
 create and index on all the sub-pads in the `stream` sub-document, and then we
 can query on those sub-fields knowing that they'll be supported by an index.
+
+## Index Operations
+### Building Indexes
+Foreground index build blocks the intire database for the duration of index
+build.
+```
+> db.collection.createIndex({title: 1})
+```
+Background index build uses an incremental approach that is slower than the
+foreground index build but it doesn't block the database. Background index build
+preriodically blocks the database but will yield incoming read and write
+operations, releasing resources to attend to incoming requests. If the index is
+larger than the available RAM, then the incremental approach can take much
+longer than a foreground index build. Also backround index build produces a less
+efficient datastructure than the foreground build does resulting in less optimal
+index traversal operations.
+```
+> db.collection.createIndex({title: 1}, {background: true})
+```
+
+Hybrid index build (available since MongoDB version 4.2) replaces both
+the foreground and the background mechanisms. Hybrid index build has performance
+of the foreground index build and non-locking properties of background index
+build meaning that all database operations can proceed uninhibited for the
+duration of the build. This is now only way to build an index in MongoDB.
+
+### Query Plans
+When a query comes into the database, a query plan is formed, which is a series
+of stages that are fed one into another. For a query below,
+```
+> db.restaurants.find({"address.zipcode": {"$gt": 5000}, cuisine: "Sushi"}).sort(stars: -1)
+```
+given an index on zipcode and cuisine index, we expect the query plan to look
+like this:
+```mermaid
+flowcharT BU
+  IXSCAN --> FETCH --> SORT
+```
+Since we have an index on zipcode and cuisine, we're able to fetch the record
+IDs (please see the `IXSCAN` stage) of the documents that meet the query
+predicate. From there, those record IDs are passed up to the `FETCH` stage. This
+is where the storage engine is going to convert the record IDs into documents.
+And then those documents are passed up to the `SORT` stage, where an in-memory
+sort will be performened on them. This is the only reasonable query plan for
+this query on this index.
+
+But for a given query, we can have many different query plans based on what
+indexes are available. If we have an index on cuisine and stars, that could
+prevent an in-memory sort, and we'd have a query plans like:
+```mermaid
+flowcharT BU
+  IXSCAN --> FETCH
+```
+Here we do an index scan where we fetch the record IDs of the documents in
+sorted order. We then pass them to the fetch stage where they're converted into
+documents and then returned. So the available indexes will determine what
+possible query plans we can use to satisfy the query.
+
+When a fresh query
+```
+> db.restaurants.find({"address.zipcode": {"$gt": 5000}, cuisine: "Sushi"}).sort(stars: -1)
+```
+comes into the database for the first time, the server is going to look at all
+the available indexes on the collection.
+```
+{_id: 1}
+{name: 1, cuisine: 1, stars: 1}
+{"address.zipcode": 1, cuisine: 1}
+{"address.zipcode": 1, start: 1}
+{cuisine: 1, stars: 1}
+```
+From there, it will indentify which indexes are viable to satisfy the query
+(three last ones in our example). We call them candidate indexes. From these
+candidate indexes, the query optimizer candidate plans.
+
+MongoDB has emperical query planner, which means there is going to be a trial
+period, where each of the candidate plans is executed over a short period of
+time. And the planner will then see which plan performed best. "Best" is
+implementation defined, e.g. the plan that returned all the results first or the
+plan that returned a certain number of document in sorted order fastest. Query
+optimizer can even define "best" in different ways depending on the query.
+For this run, this is the winning plan. If we were to run `explain` and look
+under the `winningPlan` filed, this is the plan it would be talking about.
+The other plans would fall under the `rejectedPlans` field.
+
+It wouldn't make much sense to run a trial run for every query that came into
+the database. We're going to have a lot of queries that are going to have the
+same shape and would benefit from the same query plans. Because if this, MongoDB
+caches which plan it should use for a given query shape. Over time, our
+collection is going to change and so are indexes. Under different conditions the
+plan cache will evict a plan. This can happen when
+- the server is restarted
+- threshold is reached: the amount of work performed by the first portion of the
+  query exceeds the amount of work performed by the winning plan by a factor of
+  ten (10)
+- an index is rebuilt
+- an index created / dropped
+
+
+### Forcing Indexes with `hint()`
+If the query optimizer doesn't choose the index that we would like to be chosen
+for a given query, we can use the `hint()` method to override the query
+optimizer's selection:
+```
+> db.people
+    .find({name: "John Doe", zipcode: {$gt: "63000"}})
+    .hint({name: 1, zipcode:1})
+```
+In the example above we are forcing MongoDB to use the
+`name ascending zip code ascending` index for this particular query. Here, the
+index's shape is used to tell `hint` what index to use. Actual index name can
+also be used:
+```
+> db.people
+    .find({name: "John Doe", zipcode: {$gt: "63000"}})
+    .hint("name_1_zipcode_1")
+```
+Use `hint` with caution. MongoDB's query optimizer generally does a pretty good
+job of selecting the correct index for a given query. The times when it does
+fail to select the best index for a given query is generally where there are a
+lot of indexes on your collection. And in those cases, it's probably better to
+look at index utilization and determine if you have superfluous indexes that
+can be removed rather than using the `hint` method.
+
+### Resource Allocation for Indexes
+Indexes can reduce the query execution time by a number (or even several
+numbers) of magnitude.
+
+Determine total index size (for the whole database) and index size per
+collection:
+```
+> db
+londonbikes
+> db.stats()
+{
+  "db": "londonbikes",
+  "collections": 5,
+  "views": 0,
+  "objects": 9322119,
+  "avgObjSize": 402.1234,
+  "dataSize": 3754869511,
+  "storageSize": 1248612352,
+  "numExtents": 0,
+  "indexes": 6,
+  "indexSize": 129892352,
+  "ok": 1
+}
+> db.rides_other.stats()
+{
+  ...
+  "nindexes": 2,
+  "totalIndexSize": 129056768,
+  "indexSizes": {
+    "_id_": 83673088,
+    "endstation_name_1": 45383680
+  },
+  "ok": 1
+}
+```
+Resourcewise, indexes require disk and memory. Disk is generally not an issue.
+If there is no disk space for an index file, the index won't be created at all
+and it won't be the biggest problem for a DBA :) After the indexes have been
+created, the disk space requirement will be a function of the data set size,
+i.e. you will run out of disk space for collection data before having issues
+with space for the indexes. If you use multiple physical drives and one of them
+is dedicated for the indexes, the space on it should be monitored, though.
+In the latter case you can still run out of the disk space on the drive for
+indexes before the drives for the collection data become full.
+
+Our deployments should be sized in order to accomodate all the indexes in RAM.
+Otherwise, a great deal of disk access will be required to traverse the index
+file, you will be doing a lot of page-in (into RAM) and page-out (from RAM)
+operations.
+
+Capacity of your server:
+```
+$ free -h
+        total    used    free    shared    buffers    cached
+Mem:     3.9G    3.7G    177M      996K        24M      1.7G
+```
+If one starts MongoDB with cache size of 1GB,
+```
+$ mongod --dbpath data --wiredTigerCacheSizeGB 1
+```
+then all the indexes will be placed in that cache size of 1GB.
+
+
+It's useful to know which percentage of the index actually is living in memory.
+```
+$ mongosh londonbikes
+> db.rides_other.stats({indexDetails: true})
+<tons_of_information>
+...
+  "totalIndexSize": 129056768,
+  "indexSizes": {
+    "_id_": 83673088,
+    "endstation_name_1": 45383680,
+    "resource_allocation_2": 435634176
+  },
+  "ok": 1
+>
+> let stats = db.rides_other.stats({indexDetails: true})
+> stats.indexDetails
+{
+...
+  "endstation_name_1": {
+    <tons_of_info>
+  }
+...
+}
+>
+> stats.indexDetails.endstation_name_1.cache
+{
+  "bytes currently in the cache": 5434,
+  "bytes read into cache": 641,
+  ...
+  "pages read into cache": 1,
+  "pages requested from the cache": 0
+}
+```
+One can compare index file size with `bytes currently in the cache` to determine
+percentage of the index currently in RAM. We can determine hit and miss page
+ratios by analyzing `pages read into cache` and `pages requested from the cache`.
+Currently we have zero for the latter quantity, but if we run our query
+```
+> db.rides_other.find({endstantion_name: "Milroy Walk, South Bank"})
+<results>
+> it
+<results>
+> it
+<result>
+>
+> let stats = db.rides_other.stats({indexDetails: true})
+> stats.indexDetails.endstation_name_1.cache
+{
+  "bytes currently in the cache": 71542,
+  "bytes read into cache": 25191,
+  ...
+  "pages read into cache": 3,
+  "pages requested from the cache": 2
+}
+```
+Increase in `pages read into cache` and `pages requested from the cache`
+suggests page-in and page-out operations have been done, which is better avoided.
+
+There are two edge cases that don't need the full index in RAM. Most of the
+queries are to support operational functionality -- they are recurrently getting
+information and using the indexes to support operational workload. Any index
+that supports such a query should be in RAM because its data will be utilized.
+On the other hand, if we have indexes for supporting reporting and BI tool
+mechanisms, chances that you need this information to be always allocated in
+memory are very small because the recurrency by which these tools operate is not
+in the same amount or degree that the operational workload.
+
+Instead of running reporting and BI queries on primary replica set members and
+having the indexes created on those primaries, we can have a secondary replica
+set member to requests of our BI tools, and therefore having the indexes that
+support those reporting and BI queries being created only on designated nodes.
+
+Another situation when full amount of our indexes does not necessarily requires
+to be fully allocated in memory is when we have indexes on fields that grow
+monotonically, like counters, dates and incremental IDs. If we have monotonically
+increasing data chances are that our index will eventually become unbalanced on
+the right-hand side of that index data structure (e.g. B-tree). If we only need
+to query on the most recent data, then the amount of index that actually needs
+to be in RAM is always going to be the right-end side of your index. We only
+need to care about how much data (from the recently added data) we are going to
+be needing to access all the time. This is typical scenario of IoT kind of use
+cases where new data being created in index will be either time-based or
+increamental data that always going to grow positively in the right-end side of
+our index.
+
+A typical case of the latter is, for example, when you have something like
+checkouts, you create an index that supports the queries on dates and the
+queries that you operate from the application is looking to the recent dates
+and sorting by date descending so you're always getting the latest results on
+your query.
+```
+> db.checkouts.insert({uid: 1992, date: ISODate()})
+> db.checkouts.insert({uid: 1254, date: ISODate()})
+> db.checkouts.insert({uid: 2232, date: ISODate()})
+> db.checkouts.insert({uid: 5232, date: ISODate()})
+>
+> db.checkouts.createIndex({date: 1})
+>
+> db.checkouts.find({date: {$gt: ISODate(now() - 3)}}).sort({date: -1})
+```
+In these situation you might not need to allocate the full extent of your
+supporting index.
+
+In summary, when dealing with indexes, we cannot forget that
+- these data structures requires resources
+- they are part of the database working set
+- we need to take them into consideration in our sizing and maintenance practices
