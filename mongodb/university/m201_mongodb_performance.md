@@ -67,20 +67,20 @@ collection scan (`COLLSCAN`) examining 50474 documents.
 $ mongoimport -d m201 -c people --drop people.json
 $ mongosh m201
 > db.people.find({"ssn": "720-38-5636"}).explain("executionStats")
-...
+{
   "queryPlanner": {
     "winningPlan": {
       "stage": "COLLSCAN",
     },
+  },
+  "executtionStats": {
     ...
-    "executtionStats": {
-      ...
-      "totalDocsExamined": 50474,
-      "totalKeysExamined": 0
-      "nReturned": 1,
-      ...
-    }
+    "totalDocsExamined": 50474,
+    "totalKeysExamined": 0
+    "nReturned": 1,
+    ...
   }
+}
 ```
 Create index and an explainable object and run the find on the latter. Now we
 see that the index is used (`IXSCAN`) and only one document is examined. Also,
@@ -90,11 +90,13 @@ note that only one index key was looked at (`"totalKeysExamined": 1`)
 > exp = db.people.explain("executionStats")
 Explainable(m201.people)
 > exp.find({"ssn": "720-38-5636"})
-...
-  "winningPlan": {
-    "stage": "FETCH",
-    "inputStage": {
-      "stage": "IXSCAN"
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN"
+      },
     },
   },
   "executionStats": {
@@ -103,25 +105,26 @@ Explainable(m201.people)
       "nReturned": 1,
 
   }
+}
 ```
 However, if the query predicate does not use the field on which the index is
 done, we aren't able to use index and have to a collection scan
 ```
 > exp.find({last_name: "Acavedo"})
-...
+{
   "queryPlanner": {
     "winningPlan": {
       "stage": "COLLSCAN",
-    },
-    ...
-    "executtionStats": {
-      ...
-      "totalDocsExamined": 50474,
-      "totalKeysExamined": 0
-      "nReturned": 10,
-      ...
     }
+  },
+  "executtionStats": {
+    ...
+    "totalDocsExamined": 50474,
+    "totalKeysExamined": 0
+    "nReturned": 10,
+    ...
   }
+}
 ```
 We can use dot notation when specifying indexes.
 ```
@@ -134,7 +137,7 @@ We can use dot notation when specifying indexes.
     "stage": "FETCH",
     "inputStage": {
       "stage": "IXSCAN"
-    },
+    }
   },
 ...
 ```
@@ -144,14 +147,15 @@ a compound index with only those fields of the subdocument which you care about.
 Find a range of social security numbers
 ```
 > exp.find({ssn: {$gte: "555-00-0000", $lt: "556-00-0000"}})
-...
-  "winningPlan": {
-    "stage": "FETCH",
-    "inputStage": {
-      "stage": "IXSCAN"
-    },
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN"
+      }
+    }
   },
-...
   "executtionStats": {
     ...
     "totalKeysExamined": 49
@@ -159,19 +163,20 @@ Find a range of social security numbers
     "nReturned": 49,
     ...
   }
+}
 ```
 Find a set of social security numbers:
 ```
 > exp.find({ssn: {$in: ["001-29-9184", "177-45-0950", "265-67-9973"]}})
-...
-  "winningPlan": {
-    "stage": "FETCH",
-    "inputStage": {
-      "stage": "IXSCAN"
-    },
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN"
+      }
+    }
   },
-...
-...
   "executtionStats": {
     ...
     "totalKeysExamined": 6
@@ -179,6 +184,7 @@ Find a set of social security numbers:
     "nReturned": 3,
     ...
   }
+}
 ```
 
 If multiple fields are specified in the query, we can still use the index:
@@ -240,13 +246,13 @@ Explainable(m201.people)
     ...
     "winningPlan": {
       "stage": "COLLSCAN",
-    },
-    "executioinStats": {
-      "totalKeysExamined": 0,
-      "totalDocsExamined": 50474,
-      "nReturned": 7,
-      ...
     }
+  },
+  "executioinStats": {
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 50474,
+    "nReturned": 7,
+    ...
   }
 }
 >
@@ -263,13 +269,13 @@ Explainable(m201.people)
         "keyPattern": {"last_name": 1},
         "indexName": "last_name_1",
       }
-    },
-    "executioinStats": {
-      "totalKeysExamined": 794,
-      "totalDocsExamined": 794,
-      "nReturned": 7,
-      ...
     }
+  },
+  "executioinStats": {
+    "totalKeysExamined": 794,
+    "totalDocsExamined": 794,
+    "nReturned": 7,
+    ...
   }
 }
 ```
@@ -302,14 +308,14 @@ Let's create another index and see how it affects the same queries.
           "keyPattern": {"last_name": 1},
           "indexName": "last_name_1",
         }
-      },
-    ],
-    "executioinStats": {
-      "totalKeysExamined": 7,
-      "totalDocsExamined": 7,
-      "nReturned": 7,
-      ...
-    }
+      }
+    ]
+  },
+  "executioinStats": {
+    "totalKeysExamined": 7,
+    "totalDocsExamined": 7,
+    "nReturned": 7,
+    ...
   }
 }
 ```
@@ -432,7 +438,8 @@ $ mongoimport -d m201 -c people --drop people.json
       "inputStage": {
         "stage": "IXSCAN",
       }
-    },
+    }
+  },
   "executionStats": {
     "totalDocsExamined": 50747,
     "totalKeysExamined": 50747,
@@ -486,7 +493,8 @@ sorting with a single field index, we can always do that.
         "stage": "IXSCAN",
         "direction": "backwards"
       }
-    },
+    }
+  },
   "executionStats": {
     "totalDocsExamined": 50747,
     "totalKeysExamined": 50747,
@@ -1583,7 +1591,7 @@ of stages that are fed one into another. For a query below,
 given an index on zipcode and cuisine index, we expect the query plan to look
 like this:
 ```mermaid
-flowcharT BU
+flowcharT LR
   IXSCAN --> FETCH --> SORT
 ```
 Since we have an index on zipcode and cuisine, we're able to fetch the record
@@ -1598,7 +1606,7 @@ But for a given query, we can have many different query plans based on what
 indexes are available. If we have an index on cuisine and stars, that could
 prevent an in-memory sort, and we'd have a query plans like:
 ```mermaid
-flowcharT BU
+flowcharT LR
   IXSCAN --> FETCH
 ```
 Here we do an index scan where we fetch the record IDs of the documents in
@@ -1842,3 +1850,650 @@ In summary, when dealing with indexes, we cannot forget that
 - these data structures requires resources
 - they are part of the database working set
 - we need to take them into consideration in our sizing and maintenance practices
+
+### Basic Benchmarking
+Types of Performance Benchmarking
+- public test suite
+- specific or private testing
+
+Low level benchmarking
+- file i/o performance
+- scheduler performance
+- memory allocation and transfer speed
+- thread performance
+- database server performance
+- transaction isolation
+- ...
+
+Tools like
+- sysbench
+- iibench-mongodb
+
+allow you to go very deep into low-level benchmarking kind of tests.
+
+Database server banchmarking:
+- data set load
+- writes per second
+- reads per second
+- balanced workloads
+- read/write ratio
+
+Tools like
+- YCSB
+- TPC
+
+are good test base that you can submit a database to. Please don't forget that
+many database server benchmarking tools were originally developed for relational
+systems. So if you're looking for YCSB, make sure that you look for a variation
+that correlates better to MongoDB.
+
+Distributed systems benchmarking, which for MongoDB is a big thing because it is
+a distributed database
+- linearization
+- serialization
+- fault tolerance
+
+Tools like
+- HiBench
+- Jepsen
+
+The latter is even included in the MongoDB's CI tooling.
+
+Benchmarking conditions are also important. Those tools which were written with
+relational databases in mind can make assumptions which are not true for the
+document databases.
+
+Look at the `POCDriver` tool.
+
+Benchmarking Anti-Patterns
+- database swap replace: it might not be the best way to go forward by using
+  one-to-one relationship between relational tables and MongoDB collections.
+- using `mongosh` to test performance of read and write requests
+- using `mongoimport` to test write performance
+- local laptop to run tests
+- using default MongoDB parameters (e.g. authentication and authorization is not
+  typically set up in that case but can affect performance)
+
+Benchmarking Conditions
+- hardware
+- clients
+- load
+
+## CRUD Optimization
+### CRUD Optimization
+```
+> use m201
+> let exp = db.restaurants.explain("executionStats")
+> exp.find({"address.zipcode": {$gt: 50000}, cuisine: "Sushi"}).sort(stars: -1)
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "SORT",
+      "inputStage": {
+        "stage": "SORT_KEY_GENERATOR",
+        "inputStage": {
+          "stage": "COLLSCAN"
+        }
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 11611,
+    "executionTimeMillis": 386,
+    "totalKeyExamined": 0,
+    "totalDocsExamined": 1000000
+  }
+}
+> db.restaurants.createIndex({"address.zipcode": 1, cuisine: 1, stars: 1})
+> exp.find({"address.zipcode": {$gt: 50000}, cuisine: "Sushi"}).sort(stars: -1)
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "SORT",
+      "inputStage": {
+        "stage": "SORT_KEY_GENERATOR",
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN"
+          }
+        }
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 11611,
+    "executionTimeMillis": 276,
+    "totalKeyExamined": 95988,
+    "totalDocsExamined": 11611
+  }
+}
+```
+Even though we've created an index we're still doin an in-memory sort and we're
+looking at a bunch of unnecessary keys (95988).
+```
+> db.restaurants.find({"address.zipcode": 50000}).count()
+10
+> db.restaurants.find({"address.zipcode": {$gt: 50000}}).count()
+499690
+```
+Zipcode as a range query is not very selective index because we are returning
+half of a million. On the other hand, `cuisine` has an equality condition in our
+query and so we'd expect it to be pretty selective.
+```
+> db.restaurants.find({cuisine: "Sushi"}).count()
+23303
+```
+We see 23K documents which is about only 2% of our 1M document collection. So
+this is much more selective that the 50% that we would get with zip code.
+Knowing selective parts of our query, we can reorder our index to take advantage
+of that.
+```
+> db.restaurants.createIndex({cuisine: 1, "address.zipcode": 1, stars: 1})
+> exp.find({"address.zipcode": {$gt: 50000}, cuisine: "Sushi"}).sort(stars: -1)
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "SORT",
+      "inputStage": {
+        "stage": "SORT_KEY_GENERATOR",
+        "inputStage": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "IXSCAN"
+          }
+        }
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 11611,
+    "executionTimeMillis": 90,
+    "totalKeyExamined": 11611,
+    "totalDocsExamined": 11611
+  }
+}
+```
+Our execution stats are way better now. We don't examine unnecessary key and
+execution time has also considerably imporoved. We are still doing an in-memory
+sort, however. That might be surprising providing our index includes the `stars`
+key. We can only use an index for both filtering and sorting if the key in our
+query predicate are equality conditions. Since the `zipcode` is a range query,
+we're not able to use that index for sorting. So we can swap start and zipcode,
+and this will allow us to prevent doing an in-memory sort
+```
+> db.restaurants.createIndex({cuisine: 1, stars: 1, "address.zipcode": 1})
+> exp.find({"address.zipcode": {$gt: 50000}, cuisine: "Sushi"}).sort(stars: -1)
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN"
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 11611,
+    "executionTimeMillis": 43,
+    "totalKeyExamined": 11663,
+    "totalDocsExamined": 11611
+  }
+}
+```
+Our winning plan is now an index scan followed by fetch, no more in-memory sort.
+The execution time is also way down (to 43 milliseconds). We are looking at a
+few more index keys but that's OK by doing this sort with the index we've
+actually saved on execution time overall.
+
+This is an example of `Equality, Sort, Range`. Here are our query and the index
+to get the most performant execution
+```
+> db.restaurants.find({"address.zipcode": {$gt: 50000}, cuisine: "Sushi"}).sort(stars: -1)
+> db.restaurants.createIndex({cuisine: 1, stars: 1, "address.zipcode": 1})
+```
+We can use the phrase `"Equality, Sort, Range"` when building indexes to
+determine the best way to service our queries. At the beginning of the index,
+we should match on equality conditions in the query predicate, followed by sort
+conditions, and finally rangle conditions.
+
+### Covered Queries
+Covered queries
+- very performant
+- satisfied entirely by index keys
+- 0 documents need to be examined
+
+Queries only the index can be much faster than querying documents outside of the
+index because index keys are typically smaller than the documents they catalog
+and index keys are typically available in RAM.
+
+Let's discuss how it works. Imagine we have the following query and an index on
+the same fields
+```
+> db.restaurants.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}})
+> db.restaurants.createIndex({name: 1, cuisine: 1, stars: 1})
+```
+If we were to add a projection to the query
+```
+> db.restaurants.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}},
+                      {_id: 0, name: 1, cuisine: 1, stars: 1})
+```
+so we are only including the fields that we're indexing on omitting the `_id`
+field, then all the information that we expect to get back already exists in the
+keys of the index. Because the index contains all the fields required by the
+results of the query, MongoDB can both match the query conditions and return the
+results only using the index.
+```
+> use m201
+> let exp = db.restaurants.explain("executionStats")
+> db.restaurants.createIndex({name: 1, cuisine: 1, stars: 1})
+> db.restaurants.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}},
+                      {_id: 0, name: 1, cuisine: 1, stars: 1})
+{"name": "LAuberge Chez Francois", "cuisine": "Sushi", "stars": 4.1}
+...
+>
+```
+We can confirm that it is a cover query by looking at the `explain` output
+```
+> exp.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}},
+           {_id: 0, name: 1, cuisine: 1, stars: 1})
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "PROJECTION",
+      "inputState": {
+        "stage": "IXSCAN"
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 2870,
+    "executionTimeMillis": 10,
+    "totalKeysExamined": 2988,
+    "totalDocsExamined": 0
+  }
+}
+```
+We didn't actually have to examine any documents (`"totalDocsExamined": 0`), to
+return the result. It is also a very fast query (`"executionTimeMillis": 10`).
+From the `winningPlan` field, we can see that we are immediately doing an index
+scan followed by a projection. We completely skip the `FETCH`stage that we
+normally see when we turn record IDs in the documents.
+
+Important caveat. If we just turn off the all the fields except `name`,
+`cuisine` and `stars` in the projection, the query is _not_ going to be covered
+by the index though get the same results.
+```
+> db.restaurants.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}},
+                      {_id: 0, address: 0})
+{"name": "LAuberge Chez Francois", "cuisine": "Sushi", "stars": 4.1}
+...
+>
+> exp.find({name: {$gt: L}, cuisine: 'Sushi', stars: {$gte: 4.0}},
+           {_id: 0, address: 0})
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "PROJECTION",
+      "inputState": {
+        "stage": "IXSCAN"
+      }
+    }
+  },
+  "executionStats": {
+    "nReturned": 2870,
+    "executionTimeMillis": 10,
+    "totalKeysExamined": 2988,
+    "totalDocsExamined": 2870
+  }
+}
+```
+Now we are examining documents (`"totalDocsExamined": 2870`). And that makes
+sense. When we explicitly omit fields, the query planner has no way of telling
+what other fields might be present. We might only have the fields that are index
+keys, but there also are might be documents that have other additional fields.
+Because of this, an index covers a query only when both all fields in the query
+are part of the index and all the fields that turned in the result are in the
+same index. That generally means that we need to filter out `_id`.
+
+You can't cover a query if
+- any of the index fields are arrays
+- any of the index fields are embedded documents
+- when run against a `mongos` if the index does not contain a shard key
+
+### Regex Performance
+
+Documents in the collection:
+```
+{"username": "shaw.carran", ...}
+{"username": "anthony.rowley", ...}
+{"username": "rafferty.rodolph", ...}
+{"username": "raymond.coy", ...}
+{"username": "kirby.kohlmorgen", ...}
+{"username": "kevin.winfred", ...}
+...
+```
+If we have the following query
+```
+> db.users.find({username: /kirby/})
+```
+and there isn't an index on `username`, then we need to do a collection scan.
+We have to touch every single document in our collection and apply that regular
+expression against each of these documents. Like with tranditional equality
+conditions, we can improve the performance of this query by creating an index
+on the queries field.
+```
+> db.users.createIndex({username: 1})
+```
+Now we only need to apply our reguar expression against every index key instead
+of against the whole document. While this will increase the performance of the
+query, we still need to look at every index key of our index. This somewhat
+defeats the purpose of indexes. Indexes are stored as B-trees because of their
+ability to reduce the search space to an ordered subset of the entire index. We
+can take advantage of this feature of indexes by adding a carret at the
+beginning of our regex condition.
+```
+> db.users.find({username: /^kirby/})
+```
+The carret means that we only want to return documents where the username begins
+with `kirby`. By doing this, we effectively ignoring all the branches of the
+B-tree that don't begin with Kirby. And so we're able to dramatically reduce
+the number of index key that need to be examined and therefore increase our
+overall query performance. This optimization only works if we're matching at the
+beginning of the string. The following query
+```
+> db.users.find({username: /^.irby/})
+```
+still needs to examine all the keys in the index because every single character
+matches the dot `.`: there could be matching index key that starts with `airby`
+or `kirby`, or `rirbi`, or `sirby`, etc.
+
+### Aggregation Performance
+Two categories of aggregation queries
+
+| "realtime" processing | batch processing |
+|---------------------------------|------------------------------|
+| - provide data for applications | - provide data for analytics |
+| - query performance is more     | - query performance is less  |
+|   important                     |   important                  |
+
+"Realtime" is in quotes because you can never have trully realtime processing.
+The result of "realtime" query needs to be provided back to the user in a
+reasonable amount of time. Batch queries for analytics are typically run on a
+periodic basis and their result aren't inspected minutes, hours or even days
+later from when that query was actually ran. We focus on "realtime" processing
+in this section, though some principles apply to batch processing as well.
+
+Since aggregation is a bit different than a typical find query, determining
+index usage is a bit different as well. With an aggragation query, we form a
+pipeline of different aggregation operators which transform our data into the
+format that we desire.
+```
+> db.orders.aggregate([
+  {$<oeprator>: <predicate>},
+  {$<oeprator>: <predicate>},
+  ...
+])
+```
+Some of these aggregation operators are able to use indexes and some of them are
+not. But more importantly, since data moves through a pipeline from the first
+operator to the last, one the server encounters a stage that is not able to use
+indexes, all of the following stages will no longer be able to use indexes
+either. The query optimizer tries its best to detect when a stage can be forward
+so that indexes can be utilized.
+In order for use to determine how aggregation queries are executed, we can pass
+the `{explain: true}` document as an option to the aggregation method.
+```
+> db.orders.aggregate([
+  {$<oeprator>: <predicate>},
+  {$<oeprator>: <predicate>},
+  ...
+], {explain: true})
+```
+For the rest of the section, we'll be dealing with hypothetical `orders`
+collection with the index on customer ID.
+```
+> db.orders.createIndex({cust_id: 1})
+```
+Unsurprisingly, the `$match` operator is able to utilize indexes. This is
+especially true if it's at the beginning of a pipeline. It is naturally that
+we want to see operators that use indexes at the from of pipelines.
+```
+> db.orders.aggregate([
+  {$match: {cust_id: "287"}},
+  ...
+])
+```
+
+Similarly, we want to put sort stages as close to the front as possible. We want
+to make sure that our sort stages come before any kind of transformations so
+that we can make sure we can utilize indexes for sorting.
+```
+> db.orders.aggregate([
+  {$match: {cust_id: {$lt: 50}}},
+  {$sort: {cust_id: 1}},
+  ...
+])
+```
+If you're doing a `limit` and doing a `sort`, you want to make sure that they're
+near each other and at the front of the pipeline.
+```
+> db.orders.aggregate([
+  {$match: {cust_id: {$lt: 50}}},
+  {$limit: 10},
+  {$sort: {cust_id: 1}},
+  ...
+])
+```
+When this happens, the server is able to do a top-k sort. This is when the
+server is only able to allocate memory for the final number of documents, in
+this case, 10. This can happen even without indexes. This is one of the most
+highly-performant non-index situations that you can be in. Optimizations like
+this are performed by the query optimizer whenever possible. But if there is a
+chance that this optimization can change the output results, then the query
+engine will not perform this kind of optimization. That's why understanding
+these underlying principles is important.
+
+One should also be aware of memory constrains when doing aggregation.
+- Results are sublect to 16MB document limit. Aggregation generally output a
+  single document and that single document will be susceptible to this limit.
+  This limit does not apply to the documents as they flow through the pipeline.
+  As you transform documents, they can exceed 16MB limit, but whatever is
+  returned will still fall under 16MB limit. The best way to mitigate this issue
+  is to use the `$limit` and `$project` to reduce your resulting document size.
+- 100MB RAM per stage limit. The absolute best way to mitigate this is to ensure
+  your largest stages are able to utilize indexes. That will reduce the memory
+  requirement since the indexes are generally much smaller than the documents
+  they reference. With sorting, they dramatically reduce memory requirement
+  because you don't need allocate extra memory for that sorting. If you still
+  exceed 100MB limit, you can allow MongoDB to use the disk
+  ```
+  > db.orders.aggregate([...], {allowDiskUse: true})
+  ```
+  That, however, is an absolute last resort measure because by spilling to disk,
+  you can see serious performace degration. Since it negatively affects
+  performace, `{allowDiskUse: true}` is more often used in batch processing jobs
+  than realtime processing. Finally, `{allowDiskUse: true}` doesn't work with
+  `$graphLookup`.
+
+## Performance on Clusters
+### Performance Considerations in Distributed Systems
+Working with distributed systems
+- latency
+- data is spread across different nodes
+- read implications
+- write implications
+
+Before sharding
+- sharding is an horizontal scaling solution
+- have we reached the limits of our vertical scaling?
+- you need to understand how you data grows and how your data is accessed
+- sharding works by defining key based ranges - our shard key
+- it's important to get good shard key
+
+Latency between:
+- client application and `mongos`es
+- `mongos`es and config servers
+- `mongos`es and shard nodes
+- within a shard node: each shard node is a replica set with mulitple nodes
+
+It sometimes makes sense to place `mongos` to the same physical servers where
+the client application works, so `client_application`<-->`mongos` lantency is
+minimized. Also, make sure `mongos`es connected with shard nodes via a fast
+network with large bandwidth.
+
+In routed queries, the shard key in the query, therefore, `mongos` routes the
+query to a single or small amount of backend shard nodes. On the other hand,
+in scatter-gather queries, there is no shard key in the query, all shard node
+are therefore asked for data, which can be considerable slower.
+When a query contains a `sort`, sorting is done on each shard where the data for
+that query is (routed or scatter-gather). Afterwards, final merge-sort is done
+on the primary shard of the database. The same set of logic is applied with a
+query contains `skip` and/or `limit`. Local skip and limit is performed on each
+affected shard, and then primary shard does final merge of the data and
+reapplies `skip` and `limit`. Finally, results are sent back to the client
+application via `mongos`.
+
+### Increase Write Performance with Sharding
+Shard key should be either index field or an index compound of fields that
+exists that exists in every document in the collection.
+```
+> sh.shardCollection('m201.people', {last_name: 1})
+```
+Data is split in chunks, each of maximum size of 64MB. Each shard can keep more
+that one chunk. Chunks will grow across this value, and then they will be split.
+We should ensure chunks are evenly distributed across the shards. To achieve
+this, there are three key things to keep in mind when designing a shard key:
+- cardinality
+- frequency
+- rate of change
+
+Cardinality is the number of distinct values for a given shard key. We want high
+cardinality. The cardinality of a shard key determines the maximum amount of
+chunks that can exist in the cluster. If you can't use a field that has higher
+cardinality, you can encrease the cardinality of your shard key by creating a
+compound shard key. E.g. if majority of the people on our collection lives in
+the New York state, then going from shard key on the state
+```
+> sh.shardCollection('m201.people', {"address.state": 1})
+```
+to the combination of state and last name
+```
+> sh.shardCollection('m201.people', {"address.state": 1, last_name: 1})
+```
+increases the cardinality from ~1 to a much higher number.
+
+With respect to shard key frequence, we also want the even distribution of each
+value of a shard key. If certain values of a shard key come more
+ofthen then other, we won't get the even load across the cluster effectively
+creating one or more `hot shards` in the cluster. The chunk containing the
+frequently appearing values would grow larger and larger. Those chunks might
+end up with the lower and upper bound of a shard key being the same, which makes
+it no longer eligible for splitting. We call this `jumbo chunks`. This recudes
+the effectiveness of horizontal scaling because we won't be able to move these
+chunks between shards. The issue of uneven frequency can be mitigated if we
+create a good compound shard key.
+```
+> sh.shardCollection('m201.people', {last_name: 1, _id: 1})
+```
+You want to make sure that the fields at the beginning of your shard key still
+have high cardinality. But by compunding the key, we're able to effectively
+distribute the frequency of popular values.
+
+As far as rate of change is concerned, i.e. how value of a shard key change over
+time. The key here is that we want to avoid monotonically increasing or
+decreasing values in our shard key. The classic example is `ObjectId`. Because
+of the way it is designed, new `ObjectId`s will always increase in value. Keep
+this in mind, if you're using `_id`'s default data type -- `ObjectId` -- as your
+shar key. When we have a monotinically increasing shard key, all the writes are
+going to the same shard, i.e. the shard that contains the chunk where the upper
+bound is the max key. That shard is often referred to as the "last shard". If we
+were to have a monotonically decreasing value, then all the writes would be
+coming the the shard where the lower bound is set to the minimal key: the "first
+shard". It may be OK, however, to have a monotonically increasing value in a
+shard key as long as it's not the first fields of a compound shard key:
+```
+> sh.shardCollection('m201.people', {last_name: 1, _id: 1})
+```
+Adding a monotonically increasing value to the end of a shard key actually is
+a great idea, because it increased the total cardinality of the shard key since
+it's guaranteed to always be unique.
+
+When we make *bulk writes* into MongoDB
+```
+> db.collection.bulkWrite(
+  [<operation_1>, <operation_2>, <operation_3>, ...]
+  {ordered: <boolean>}
+)
+```
+we have to specify whether we want those writes to be ordered or unordered. With
+and ordered bulk write, the server is going to execute these operations one
+after another, waiting for the last response to succeed before executing the
+next. If an operation fails, we immediately stop the bulk insertion and report
+back to the client. With an unordered bulk write, the server can execute all the
+operations in parallel.
+
+In a replica set, the ordered bulk write is processed
+entirely in one machine -- the primary. While in a shared cluster, each
+operation goes to the next consequentive shard, and the client waits additional
+time equal to the that shard latency before sending the next operation to the
+next shard. As a result, the total time of the ordered bulk write increases
+compared to that in case of a replica set. On the other hand, with an unordered
+bulk write we can execute all the operations in parallel (each operation goes to
+its own shard), maintaining the distributed benefits that we get with a sharded
+cluster.
+
+With a bulk write in a sharded cluster, the `mongos` needs to deserialize these
+write operations into the corresponding nodes: `mongos` has to send each write
+operation to each individual shard.
+
+### Reading from Secondaries
+When we read data from MongoDB, there is an assosiated read preference. By
+default is set to "primary", meaning all read go to the primary member of a
+resplica set.
+
+```
+> db.people.find().readPref("primary")
+> db.people.find().readPref("primaryPreferred")
+> db.people.find().readPref("secondary")
+> db.people.find().readPref("secondaryPreferred")
+> db.people.find().readPref("nearest")
+```
+Using `db.people.find().readPref("secondary")` will route the read to one of the
+secondaries. Writes, however, can only be routed to the primary node.
+The `secondaryPreferred` means the reads are routed to one of the secondaries
+unless there aren't any available, in which case reads will be routed to the
+primary. The `nearest` means that the read will be routed to the node with the
+lowest network latency (the driver determines this member by measuring network
+lag from the heartbeat message).
+
+When we read data from a secondary node, there is a possibility that we are
+reading stale data. Since the all writes are routed to the primary, when we read
+from the primary, we are guaranteed to read the latest copy of data. This is
+called strong consistency. Since the data asynchronously replicated to the
+secondaries, reading from a secondary can't guarantee that the data is the
+latest. This is called eventual consistency. When setting any read preference
+than "primary", we need to make sure our application is OK with reading stale
+data.
+
+Reading from a secondary is a *good* idea for:
+- Analytics. The queries for analytics are generally resource-intensive and long
+  running. They have much different memory footprint then the queries assosiated
+  with operational workload. We don't want to execute these queries on the
+  primary because the reads and writes of out application will be affected.
+  This is possible because analytics jobs are OK with reading stale data.
+- Local reads in geographically distributes replica sets. E.g. we have two
+  application servers, where one is dedicated to the West Coast of the USA,
+  and the other is dedicated to the East Cost. One of the three replica set
+  members is locaed on one cost, while the remaining two members reside on the
+  other. This setup is favorable when applications need to have low latency
+  but are OK with reading stale data.
+
+Reading from a secondary is a *bad* idea for:
+- Providing extra capacity for reads. Some people have the false notion that if
+  the primary is overworked by writes that they can offload their reads to a
+  secondary node. This is not the case, because, as writes come into the primary,
+  they are replicated to the secondaries. This means that all members of a
+  replica set have roughly the same amount of write traffic. On the other hand,
+  if the primary is overworked with reads, and you're OK to read stale data,
+  you're fine to read from secondaries.
