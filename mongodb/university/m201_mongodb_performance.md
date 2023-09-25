@@ -1591,7 +1591,7 @@ of stages that are fed one into another. For a query below,
 given an index on zipcode and cuisine index, we expect the query plan to look
 like this:
 ```mermaid
-flowcharT LR;
+flowchart LR;
     IXSCAN --> FETCH --> SORT;
 ```
 Since we have an index on zipcode and cuisine, we're able to fetch the record
@@ -1606,7 +1606,7 @@ But for a given query, we can have many different query plans based on what
 indexes are available. If we have an index on cuisine and stars, that could
 prevent an in-memory sort, and we'd have a query plans like:
 ```mermaid
-flowcharT LR;
+flowchart LR;
     IXSCAN --> FETCH;
 ```
 Here we do an index scan where we fetch the record IDs of the documents in
