@@ -1591,8 +1591,8 @@ of stages that are fed one into another. For a query below,
 given an index on zipcode and cuisine index, we expect the query plan to look
 like this:
 ```mermaid
-flowcharT LR
-  IXSCAN --> FETCH --> SORT
+flowcharT LR;
+  IXSCAN --> FETCH --> SORT;
 ```
 Since we have an index on zipcode and cuisine, we're able to fetch the record
 IDs (please see the `IXSCAN` stage) of the documents that meet the query
@@ -1606,8 +1606,8 @@ But for a given query, we can have many different query plans based on what
 indexes are available. If we have an index on cuisine and stars, that could
 prevent an in-memory sort, and we'd have a query plans like:
 ```mermaid
-flowcharT LR
-  IXSCAN --> FETCH
+flowcharT LR;
+  IXSCAN --> FETCH;
 ```
 Here we do an index scan where we fetch the record IDs of the documents in
 sorted order. We then pass them to the fetch stage where they're converted into
@@ -2212,10 +2212,9 @@ or `kirby`, or `rirbi`, or `sirby`, etc.
 Two categories of aggregation queries
 
 | "realtime" processing | batch processing |
-|---------------------------------|------------------------------|
-| - provide data for applications | - provide data for analytics |
-| - query performance is more     | - query performance is less  |
-|   important                     |   important                  |
+|---------------------------------------|---------------------------------------|
+| - provide data for applications       | - provide data for analytics          |
+| - query performance is more important | - query performance is less important |
 
 "Realtime" is in quotes because you can never have trully realtime processing.
 The result of "realtime" query needs to be provided back to the user in a
