@@ -2496,3 +2496,336 @@ Reading from a secondary is a *bad* idea for:
   replica set have roughly the same amount of write traffic. On the other hand,
   if the primary is overworked with reads, and you're OK to read stale data,
   you're fine to read from secondaries.
+
+### Replica Set Nodes with Differing Indexes
+Having a specific indexes on secondary nodes alone is not very usual and is only
+useful for a handful of use cases, e.g.:
+- specific analytics on secondary nodes
+- reporting on delayed consistency data
+- text search
+
+A secondary node that have a specific index should not be allowed to become
+a primary node. Configure it in one of the following ways:
+- priory = 0
+- hidden node
+- delayed secondary
+
+Otherwise, such a node can be elected primary but its indexes are not designed
+to server the operational workload resulting in bad performance scenario for
+the client application.
+
+Let's create a replica set and initialize it so that priority of one of the
+nodes is zero:
+```
+$ make -p /data/r{0,1,2}
+$
+$ ls replicaset_configs
+r0.cfg r1.cfg r2.cfg
+$
+$ grep 'port' replicaset_configs/*
+r0.cfg:  port: 27000
+r1.cfg:  port: 27001
+r2.cfg:  port: 27002
+$
+$ mongod -f replicaset_configs/r0.cfg
+$ mongod -f replicaset_configs/r1.cfg
+$ mongod -f replicaset_configs/r2.cfg
+$
+$ grep 'replSet' replicaset_configs/*
+r0.cfg:  replSetName: M201
+r1.cfg:  replSetName: M201
+r2.cfg:  replSetName: M201
+$
+$ mongosh --port 27000
+> let conf = {
+  "_id": "M201",
+  "members": {
+    {"_id": 0,  "host": "127.0.0.1:27000"},
+    {"_id": 1,  "host": "127.0.0.1:27001"},
+    {"_id": 2,  "host": "127.0.0.1:27002", "priority": 0},
+  }
+};
+>
+> rs.initiate(conf)
+M201:PRIMARY> rs.isMaster()
+{
+  "hosts": ["127.0.0.1:27000", "127.0.0.1:27001"]
+  "passive": ["127.0.0.1:27002"],
+  ...
+}
+> ^C
+$
+$ mongoimport --host M201/localhost:27000,localhost:27001,localhost:27002 \
+  -d m201 -c restaurants restaurants.json
+$
+$ mongosh --host M201/localhost:27000,localhost:27001,localhost:27002
+M201:PRIMARY> use m201
+M201:PRIMARY> show collections
+restaturants
+M201:PRIMARY> db.restaurants.findOne()
+{
+  "_id": ObjectId("<object_id>"),
+  "name": "Perry Street Brasserie",
+  "cuisine": "French",
+  "stars": 0.3,
+  "address": {
+    "street": "959 Iveno Square",
+    "city": "Fokemlid",
+    "state": "AL",
+    "zipcode": "18882"
+  }
+}
+```
+Let's imagine that the operational workload will be just finding a restaurant by
+its name. We need to create an index for that:
+```
+M201:PRIMARY> db.restaurants.createIndex({name: 1})
+M201:PRIMARY> db.restaurants.find({name: "Perry Street Brasserie"}).explain()
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "keyPattern": {"name": 1}
+        "indexName": "name_1"
+      }
+    }
+  }
+}
+```
+As the output of the `explain` command shows, reading from the primary is
+supported by the index. Let's connect to the secondary, enable reads from
+secondaries by issuing the `db.setSlaveOk` command. Otherwise, MongoDB does not
+allow you to do secondary reads by default.
+```
+M201:PRIMARY> db = connect("127.0.0.1:27002/m201")
+M201:SECONDARY> db.setSlaveOk()
+M201:SECONDARY> db.restaurants.find({name: "Perry Street Brasserie"}).explain()
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "keyPattern": {"name": 1}
+        "indexName": "name_1"
+      }
+    }
+  }
+}
+```
+What would actually be interesting to do is to allow our system to run special
+analytics queries on the `127.0.0.1:27002` node alone. Shut-down the server and
+bring it up as a standalone. It is required to use the same `dbpath` for that.
+Confirm that the node is running *not* as a replica set member.
+```
+M201:SECONDARY> use admin
+M201:SECONDARY> db.shutdownServer()
+>
+$ mongod --port 27002 --dbpath /data/r2 --logpath /data/r2/standalone.log --fork
+$ mongosh --port 27002
+> rs.status()
+{
+  "ok": 0,
+  "errmsg": "not running with --replSet",
+  "code": 76,
+  "codeName": "NoReplicationEnable"
+}
+```
+Let's create a specific index to support our analytical queries. We want to
+index the full address information and the restaurant's type of cuisine. This is
+going to be a large beefy index :) that is going to server a set of specific
+queries from the analytical workload.
+```
+> use m201
+> db.restaurants.createIndex({
+  "cuisine": 1,
+  "address.street": 1,
+  "address.city": 1,
+  "address.state": 1,
+  "address.zipcode": 1
+})
+> db.restaurants.find({cuisine: /^Medi/, "address.zipcode": /^6/}).explain()
+{
+  "parsedQuery": {
+    "$and": [
+      {"address.zipcode": {"$regex": "^6"}},
+      {"cuisine": {"$regex": "^Medi"}}
+    ]
+  },
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "indexName": "cuisine_1_address.street_1_address.city_1_address.state_1_address.zipcode_1"
+      }
+    }
+  }
+}
+```
+Let's shut down the server once again and restart it as a replica set member.
+If we run the previous analytical query on the *primary* node, we'll see we are
+no longer using the index.
+```
+> use admin
+> db.shutdownServer()
+$
+$ mongod -f replicaset_configs/r2.cfg
+$ mongosh --host M201/localhost:27000,localhost:27001,localhost:27002
+M201:PRIMARY> use m201
+M201:PRIMARY> db.restaurants.find({cuisine: /^Medi/, "address.zipcode": /^6/}).explain()
+{
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "COLLSCAN"
+    }
+  }
+}
+```
+The index will only be utilized if we run this query on the designated secondary
+node.
+```
+M201:PRIMARY> db = connect("127.0.0.1:27002/m201")
+M201:SECONDARY> db.setSlaveOk()
+M201:SECONDARY> db.restaurants.find({cuisine: /^Medi/, "address.zipcode": /^6/}).explain()
+{
+  "parsedQuery": {
+    "$and": [
+      {"address.zipcode": {"$regex": "^6"}},
+      {"cuisine": {"$regex": "^Medi"}}
+    ]
+  },
+  "queryPlanner": {
+    "winningPlan": {
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "indexName": "cuisine_1_address.street_1_address.city_1_address.state_1_address.zipcode_1"
+      }
+    }
+  }
+}
+```
+This time we ran the query under a replica set, no longer in a standalone mode.
+
+### Aggregation Pipeline on a Sharded Cluster
+In a sharded cluster, our data is partitioned across the shards.
+```mermaind
+flowchart TB
+    mongos <--> id1(Shard A)
+    mongos <--> id2(Shard B)
+    mongos <--> id3(Shard C)
+    mongos <--> id4(Shard D)
+```
+
+In the example below
+```
+> sh.shardCollection('m201.restaurants', {"address.state": 1})
+>
+> db.restaurants.aggregate([
+  {$match: {'address.state': 'NY'}},
+  {$group: {_id: 'address.state', {avgStars: {$avg: '$stars'}}}}
+])
+```
+We use `$match` to find all the restaurants in New York state and `$group` to
+to group by each state and then average the amount of stars for that given state.
+Since the shard key is on state, all the restaurants in New York are going to be
+on the same shard. This means that the server is able to simply route the
+aggregation query to that shard, where it can run the aggregation and return the
+results back to `mongos` and then back to the client.
+
+In the following example:
+```
+> sh.shardCollection('m201.restaurants', {"address.state": 1})
+>
+> db.restaurants.aggregate([
+  {$group: {_id: 'address.state', {avgStars: {$avg: '$stars'}}}}
+])
+```
+we are no longer using the `$match` stage. So now we're token about all
+documents in our sharded collection. Since these documents are spread across
+multiple shards, we're going to need to do some computing on each shard, but
+then we'll also need to somehow get all of those results to one place where we
+can merge the results together. In this case, out pipeline needs to be split.
+The server will determine which stages need to be executed on each shard and
+then what stages need to be executed on a single shard where the results from
+the other shards will be merged together. Generally, merging will happen on a
+random shard except for the queries that use:
+- `$out`
+- `$facet`
+- `$lookup`
+- `$graphLookup`
+For these queries, the primary shard will do the work of merging our results.
+If we run such operations frequently, the primary shard will be under a lot more
+load than the rest of our cluster degrading the benefits of horizontal scaling.
+Under these specific circumstances, you can mitigate this issue by using a
+machine with more resources for your primary shard.
+
+There are some optimizations the server will try to perform that you should be
+aware of. Most of them also apply when sharding is not used.
+
+Given the query
+```
+> db.restaurants.aggregate([
+  {$sort: {stars: -1}},
+  {$match: {cuisine: 'Sushi'}}
+])
+```
+the query optimizer will move the match in front of the sort to reduce the
+number of documents that need to be sorted.
+```
+> db.restaurants.aggregate([
+  {$match: {cuisine: 'Sushi'}},
+  {$sort: {stars: -1}}
+])
+```
+This is particularly useful in sharded clusters when we have to split in our
+pipeline and we want to reduce the amount of data being transfered over the wire
+to our merging shard.
+
+Similarly, we can reduce the number of documents that we need to examine by
+moving the limit after a skip
+```
+> db.restaurants.aggregate([{$skip: 10}, {$limit: 5}])
+```
+in front of it.
+```
+> db.restaurants.aggregate([{$limit: 15}, {$skip: 10}])
+```
+The query planner updates the values accordingly to support this optimization.
+
+Other than moving stages around, the server is also able to combine certain
+stages together. Here we are combining two limits
+```
+> db.restaurants.aggregate([{$limit: 10}, {$limit: 5}])
+```
+into one.
+```
+> db.restaurants.aggregate([{$limit: 5}])
+```
+
+The same thing applies to `$skip`. The query below
+```
+> db.restaurants.aggregate([{$skip: 10}, {$skip: 5}])
+```
+becomes
+```
+> db.restaurants.aggregate([{$skip: 15}])
+```
+
+Finally, `$match` can also be combined so that this
+```
+> db.restaurants.aggregate([
+  {$match: {cuisine: 'Sushi'}},
+  {$match: {stars: 5.0}}
+])
+```
+becomes that
+```
+> db.restaurants.aggregate([{$match: {cuisine: 'Sushi', stars: 5.0}}])
+```
+All these optimizations will automatically be attempted by the query optimizer.
+That being said, you still need to carefully consider your own aggregation
+pipelines and the performance implications.
