@@ -7,7 +7,7 @@ RAID 10 is the recommended RAID architecture for MongoDB deployments.
 ## MongoDB Indexes
 ### Introduction to Indexes
 ### How Data is Stored on Disk
-The WiredTiger storage engine create an individual file for each collection and
+The WiredTiger storage engine creates an individual file for each collection and
 index, the `_mdb_catalog.wt` file contains the catalog of all different
 collections and indexes this particular `mongod` contains.
 ```
@@ -82,9 +82,7 @@ $ mongosh m201
   }
 }
 ```
-Create index and an explainable object and run the find on the latter. Now we
-see that the index is used (`IXSCAN`) and only one document is examined. Also,
-note that only one index key was looked at (`"totalKeysExamined": 1`)
+Create index and an explainable object and run the find on the latter.
 ```
 > db.people.createIndex({ssn: 1})
 > exp = db.people.explain("executionStats")
@@ -107,6 +105,12 @@ Explainable(m201.people)
   }
 }
 ```
+Now we are scanning the index (`IXSCAN`) to collect "pointers" to the documents
+whose the index key (`ssn` in our case) matches that in the query, then we are
+reading the whole documents themselvs by those "pointers" (`FETCH`). Please also
+note that only one docuemnt (`"totalDocsExamined": 1`) and one index key
+(`"totalKeysExamined": 1`) was looked at.
+
 However, if the query predicate does not use the field on which the index is
 done, we aren't able to use index and have to a collection scan
 ```
@@ -141,7 +145,7 @@ We can use dot notation when specifying indexes.
   },
 ...
 ```
-It is a bad idea to create an index on the whole subdocument. Instead, create
+*It is a bad idea to create an index on the whole subdocument.* Instead, create
 a compound index with only those fields of the subdocument which you care about.
 
 Find a range of social security numbers
@@ -209,7 +213,7 @@ the social security number to filter down to the three document that match our
 query, and then from those three documents we filtering on which of those three
 match the last name predicate.
 
-## Understanding Explain
+### Understanding Explain
 
 Run `explain` directly
 ```
@@ -378,7 +382,7 @@ Shard shard02 contains 2% data
 {
   "queryPlanner": {
     "winningPlan": {
-      "stage": "SHARD_MEGE",
+      "stage": "SHARD_MERGE",
       "shards": [
         {
           "shardName": "shard01",
@@ -428,7 +432,7 @@ the query predicate or to the requested sort.
 ```
 $ mongoimport -d m201 -c people --drop people.json
 > use m201
-> db.people.find({}, {_id: 0, first_name: 1, last_name: 1, ssn: 1}).sort({ssn: 1})
+> db.people.createIndex({ssn: 1})
 > var exp = db.people.explain("executionStats")
 > exp.find({}, {_id: 0, first_name: 1, last_name: 1, ssn: 1}).sort({ssn: 1})
 {
@@ -450,7 +454,7 @@ $ mongoimport -d m201 -c people --drop people.json
 The server did index scan even though all the documents were requested because
 the index wasn't used for filtering documents, but was rather used for sorting.
 
-If we sort on first name, which we don't have an index for
+If we sort on first name, which we don't have an index, we get the following.
 ```
 > exp.find({}, {_id: 0, first_name: 1, last_name: 1, ssn: 1}).sort({first_name: 1})
 {
@@ -619,10 +623,10 @@ index prefix for this is `{last_name: 1}`.
 ```
 
 If we have a compound index, it can service queries for both the compound and
-any of its prefixes, but it won't use index when we're not querying on a prefix.
-If your application has two queries and one uses fields that are subset of the
-other, you should build an index where one query uses the index prefix and the
-other uses all fields of the index.
+any of its prefixes, but the server won't use the index when we're not querying
+on a prefix. If your application has two queries and one uses fields that are
+subset of the other, you should build an index where one query uses the index
+prefix and the other uses all fields of the index.
 
 ```
 > db.people.dropIndex("last_name_1_first_name_1")
@@ -974,7 +978,7 @@ quantity because the stock field is only an array.
   ok: 1
 }
 ```
-It is also file to insert the following document where product name is an array
+It is also fine to insert the following document where product name is an array
 but stock is not. We should point out, however, that this is not a particularly
 good schema to use in the production :)
 ```
@@ -2343,24 +2347,24 @@ network with large bandwidth.
 
 In routed queries, the shard key in the query, therefore, `mongos` routes the
 query to a single or small amount of backend shard nodes. On the other hand,
-in scatter-gather queries, there is no shard key in the query, all shard node
-are therefore asked for data, which can be considerable slower.
+in scatter-gather queries, there is no shard key in the query, all shard nodes
+are therefore asked for data, which can be considerably slower.
 When a query contains a `sort`, sorting is done on each shard where the data for
 that query is (routed or scatter-gather). Afterwards, final merge-sort is done
-on the primary shard of the database. The same set of logic is applied with a
-query contains `skip` and/or `limit`. Local skip and limit is performed on each
+on the primary shard of the database. The same set of logic applies to queries
+that contain `skip` and/or `limit`. Local skip and limit is performed on each
 affected shard, and then primary shard does final merge of the data and
 reapplies `skip` and `limit`. Finally, results are sent back to the client
 application via `mongos`.
 
 ### Increase Write Performance with Sharding
 Shard key should be either index field or an index compound of fields that
-exists that exists in every document in the collection.
+exists in every document in the collection.
 ```
 > sh.shardCollection('m201.people', {last_name: 1})
 ```
-Data is split in chunks, each of maximum size of 64MB. Each shard can keep more
-that one chunk. Chunks will grow across this value, and then they will be split.
+Data is split in chunks, each has maximum size of 64MB. Each shard can keep more
+that one chunk. When chunks grow across this value, they are split.
 We should ensure chunks are evenly distributed across the shards. To achieve
 this, there are three key things to keep in mind when designing a shard key:
 - cardinality
@@ -2399,8 +2403,8 @@ You want to make sure that the fields at the beginning of your shard key still
 have high cardinality. But by compunding the key, we're able to effectively
 distribute the frequency of popular values.
 
-As far as rate of change is concerned, i.e. how value of a shard key change over
-time. The key here is that we want to avoid monotonically increasing or
+As far as rate of change is concerned, i.e. how values of a shard key change
+over time, the key here is that we want to avoid monotonically increasing or
 decreasing values in our shard key. The classic example is `ObjectId`. Because
 of the way it is designed, new `ObjectId`s will always increase in value. Keep
 this in mind, if you're using `_id`'s default data type -- `ObjectId` -- as your
