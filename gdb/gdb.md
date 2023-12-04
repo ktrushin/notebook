@@ -10,7 +10,7 @@ $ gdb
 (gdb) show directories
 (gdb) file <path_to_the_executable>
 Reading symbols from <path_to_the_debug_symbols_directory>/.build-id/5b/877dcd5360292c5060a70e61206c183881401f.debug
-(gdb) set args --foo=bar -baz norf
+(gdb) set args --foo=bar -b norf
 (gdb) break main
 (gdb) run
 ```
