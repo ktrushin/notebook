@@ -24,8 +24,7 @@ $ rsync -a source_dir/* dest_dir/
 
 Memory a process consumes (in KB)
 ```shell
-$ ps --no-header -C <process_command> -o rss | \
-  python3 -c "from fileinput import input; print(sum(map(int, input())))"
+$ ps --no-header -C <process_command> -o rss | awk '{rss += $1};END{print rss}'
 $ smem -P <process_command> -c pss -H | \
   python3 -c "from fileinput import input; print(sum(map(int, input())))"
 ```
