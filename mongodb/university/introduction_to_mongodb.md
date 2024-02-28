@@ -492,16 +492,26 @@ Common schema anti-patterns:
 
 ### Transactions
 The code that's used to complete a multi-document transaction:
-```js
-> const session = db.getMongo().startSession()
-> session.startTransaction()
-> const account = session.getDatabase('<db_name>'')
-                         .getCollection('<collectioin_name>')
-> // Here are updates for multiple documents, e.g. with the `.updateOne()` function
-> session.commitTransaction()
 ```
-In you find youself in a scenario when, for instance, you made something wrong
-and want to cancel the operations in a uncommited transaction, please use:
-```js
-> session.abortTransaction()
+> db.getSiblingDB("db_alpha").coll_kilo.insertOne(
+      {key_sierra: "value_tango"},
+      {writeConcern: {w: "majority", j: true, wtimeout: 1000}})
+> db.getSiblingDB("db_bravo").coll_lima.insertOne(
+      {key_victor: "value_whiskey"},
+      {writeConcern: {w: "majority", j: true, wtimeout: 1000}})
+> session = db.getMongo().startSession({readPreference: {mode: "primary"}});
+> coll1 = session.getDatabase("db_alpha").coll_kilo;
+> coll2 = session.getDatabase("db_bravo").coll_lima;
+> session.startTransaction(
+      {readConcern: {level: "local"},
+      writeConcern: {w: "majority", j: true, wtimeout: 72000000}});
+> try {
+     coll1.insertOne({key_sierra: "value_quebec"});
+     coll2.insertOne({key_victor: "value_romeo"});
+  } catch (error) {
+     session.abortTransaction();
+     throw error;
+  }
+> session.commitTransaction();
+> session.endSession();
 ```
