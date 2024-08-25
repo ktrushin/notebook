@@ -128,3 +128,8 @@ $ sudo apt-get install sane-airscan
     hit the `Install PPD file` button, choose the
     `/usr/share/ppd/uld-hp/HP_Laser_MFP_13x_Series.ppd` file.
 
+A data scrubbing command to prevent a bit rot on an external flash-memory-based
+drive (SSD, USB flash drive):
+```
+$ sudo dd if=/dev/disk/by-label/<drive_name> of=/dev/null iflag=nocache status=progress
+```
