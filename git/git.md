@@ -104,6 +104,12 @@ $ git show <treeish>:<file>
 $ git show HEAD~4:index.html
 ```
 
+Update the date of the last commit (e.g. after squashing):
+```shell
+$ git commit --amend --no-edit --date=now
+$ git commit --amend --no-edit --date="Thu Aug 29 21:55:00 2024 +0400"
+```
+
 Export the latest commit in a patch form to be e-mailed to the maintainer
 of the upstream repo:
 ```shell
