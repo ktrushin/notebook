@@ -1,0 +1,1 @@
+deb [signed-by=/usr/share/keyrings/expressvpn.asc] mirror+file:/usr/lib/expressvpn/repo_mirror.list any-version main
