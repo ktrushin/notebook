@@ -1,5 +1,20 @@
 # GDB
 
+## Trick to set a breakpoint to a location in a shared library
+When a binary is linked dynamically, the debug symbols from its shared libraries
+aren't available until the binary is run. We set a breakpoint to the `main`
+function. When the execution flow hits it, all shared libraries (with their
+debug symbols) have been already loaded. At this point, we can set breakpoints
+to the code in shared libraries using different location specifiers.
+```
+$ gdb --args path/to/the/binary arg0 arg1 arg2
+(gdb) break main
+(gdb) run
+Breakpoint 1.1 maiin(...
+(gdb) break <path/to/shared/library/source.cpp>:<line_number>
+(gdb) break <function_from_a_shared_library>
+```
+
 ## Debug symbols and source code location
 Debugging a program with nondefault locations of debugging symbols and source
 code:
