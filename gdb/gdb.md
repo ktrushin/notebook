@@ -13,6 +13,7 @@ $ gdb --args path/to/the/binary arg0 arg1 arg2
 Breakpoint 1.1 maiin(...
 (gdb) break <path/to/shared/library/source.cpp>:<line_number>
 (gdb) break <function_from_a_shared_library>
+(gdb) continue
 ```
 
 ## Debug symbols and source code location
