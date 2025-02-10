@@ -16,7 +16,7 @@
 		"_build*",
 		"cmake-build*"
 	],
-	"font_face": "Ubuntu Mono",
+	"font_face": "Ubuntu Sans Mono",
 	/*"font_size": 14,*/
 	"ignored_packages":
 	[
@@ -38,6 +38,6 @@
 	"wrap_width": 80,
 
 	"monokai_pro_sidebar_font_size": 14,
-	"monokai_pro_label_font_size": 14,
-	"font_size": 12,
+	"monokai_pro_label_font_size": 13,
+	"font_size": 11,
 }
