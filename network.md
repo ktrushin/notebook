@@ -15,9 +15,9 @@ for line in input():
 
 ## Tcpdump
 ```shell
-$ sudo /usr/sbin/tcpdump -A -s 0 -i eth0 -w my_host.my_domain.pcap \
+$ sudo tcpdump -A -s 0 -i eth0 -w my_host.my_domain.pcap \
     'host my_host.my_domain.com and tcp port 443'
-$ sudo /usr/sbin/tcpdump -A -s 0 -i lo -w test.pcap 'host 127.0.0.1 and tcp'
+$ sudo tcpdump -A -s 0 -i lo -w test.pcap 'host 127.0.0.1 and tcp'
 $ sudo tcpdump -A -s0 -i any -w test.pcap 'tcp and (port 80 or port 443)'
 $ sudo tcpdump -A -s 0 -i lo -w ~/jira/psmdb-1241/lo.pcap \
     '(host 127.0.0.1 or 127.0.0.2) and tcp'
