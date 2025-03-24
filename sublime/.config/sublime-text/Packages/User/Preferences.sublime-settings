@@ -16,8 +16,7 @@
 		"_build*",
 		"cmake-build*"
 	],
-	"font_face": "Ubuntu Sans Mono",
-	/*"font_size": 14,*/
+	"font_face": "Ubuntu Mono",
 	"ignored_packages":
 	[
 		"Vintage",
