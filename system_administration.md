@@ -133,3 +133,12 @@ drive (SSD, USB flash drive):
 ```
 $ sudo dd if=/dev/disk/by-label/<drive_name> of=/dev/null iflag=nocache status=progress
 ```
+
+X selection: copy primary to clipboard
+- install `xsel`
+  ```
+  $ sudo apt-get install xsel
+  ```
+- add a keyboard shortcut `Ctrl + Insert` with the command
+  `sh -c 'xsel --output --primary | xsel --input --clipboard'`
+  and the name `x_selections_copy_primary_to_clipboard`
