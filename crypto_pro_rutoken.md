@@ -54,3 +54,7 @@ How to use `КриптоПро`:
     installing certiricate enables signing and ecnryption (see below)
 04. Go to `Signing`, click `Choose file to sign`, click `Sign`
 05. Got to `Encrypt file`, click `Choose file to encrypt`, click `Encrypt`
+
+
+Before installing or using Saby plug-in (aka СБИС плагин or Sbis plug-in)
+change OS interface language to Russian. Otherwise, it won't work properly.
