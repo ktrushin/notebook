@@ -11,3 +11,13 @@ alias nvim="nvim -c 'set clipboard+=unnamedplus' $@"
 export EDITOR="nvim -c 'set clipboard+=unnamedplus'"
 
 export PATH=$PATH:/usr/local/go/bin
+
+uv() {
+  local project_root=$(command uv -v version 2>&1 | \
+      sed -ne 's/^.*Found project root: `\(.*\)`$/\1/p')
+  if [ -n "$project_root" ]; then
+    project_root=$(basename $project_root)
+    export UV_PROJECT_ENVIRONMENT=~/.cache/uv-venv/$project_root
+  fi
+  command uv "$@"
+}
