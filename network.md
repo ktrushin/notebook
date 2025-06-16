@@ -1,5 +1,11 @@
 # Network tools
 
+Install a CA certificate system-wide:
+```shell
+sudo cp my_self_signed_ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
 ## Show sockets
 ```shell
 $ sudo ss -lpt
