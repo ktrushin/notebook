@@ -14,7 +14,8 @@
 		".Trash-*",
 		"build",
 		"_build*",
-		"cmake-build*"
+		"cmake-build*",
+		"target"
 	],
 	"font_face": "Ubuntu Mono",
 	"ignored_packages":
