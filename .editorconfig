@@ -8,9 +8,8 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{cpp,hpp,cxx,hxx,sh,awk,toml,yaml,yml,md}]
+[*.{c,h,cpp,hpp,cxx,hxx,sh,awk,toml,yaml,yml,md}]
 indent_size = 2
 
-[{*.go,Makefile,rules}]
+[{*.go,go.mod,go.sum,Makefile,rules}]
 indent_style = tab
-indent_size = 8
