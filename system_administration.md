@@ -142,3 +142,16 @@ X selection: copy primary to clipboard
 - add a keyboard shortcut `Ctrl + Insert` with the command
   `sh -c 'xsel --output --primary | xsel --input --clipboard'`
   and the name `x_selections_copy_primary_to_clipboard`
+
+
+Logitech Spotlight
+Connect the device _via bluetooth_, not via a dongle. To enable the pairing mode
+on the device, hold the top and the bottom buttons simultaneously for 3 sec.
+To connect an alrady paired device, press the big `>` button three times.
+Start `projecteur` using the command:
+```shell
+$ QT_QPA_PLATFORM=xcb projecteur
+```
+Check `Enable multi-screen overlay`. Change other settings if required, then
+close the window. Projecteur remains active (see the icon on the top panel) and
+doesn't intervene into your presentation.
