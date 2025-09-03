@@ -15,7 +15,8 @@
 		"build",
 		"_build*",
 		"cmake-build*",
-		"target"
+		"target",
+		"bazel-*"
 	],
 	"font_face": "Ubuntu Mono",
 	"ignored_packages":
