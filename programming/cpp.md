@@ -1,5 +1,10 @@
 # C++
 
+See C++ builtin specs for GCC:
+```shell
+$ echo | gcc -xc++ -E -v -
+```
+
 Core pattern
 ```shell
 $ man core
