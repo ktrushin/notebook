@@ -116,6 +116,11 @@ of the upstream repo:
 $ git format-patch -1 HEAD
 ```
 
+Repository overview:
+```shell
+$ git log --oneline --graph --all --simplify-by-decoration
+```
+
 Resolving conflict in submodule commit while rebasing my feature branch on
 the `master` branch:
 ```shell
