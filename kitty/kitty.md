@@ -44,6 +44,20 @@ in a Docker constainer's bash shell), install the `kitty-terminfo` package
 ```shell
 $ sudo apt-get install kitty-terminfo
 ```
+Alternatively, you can do the following. On the host machine:
+```shell
+$ infocmp xterm-kitty > kitty.terminfo
+```
+Then, in the container:
+```
+$ tic kitty.terminfo
+```
+Ignore the `older tic versions may treat the description field as an alias` error if any.
+Exit from a container's shell and run the shell in the container again:
+```shell
+$ docker container exec -it <container_name> bash
+```
+Now, everything should work.
 
 ## Archive
 Old scrollback pager recipes for `kitty.conf`:
