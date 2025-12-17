@@ -10,3 +10,14 @@ Note: your email may or may not be on `example.com`.
 
 Please add `-q -N ''` at the end of the shell command above if you want to
 generate a key without a passphrase non-interactively.
+
+
+Check that the passphase works:
+```shell
+$ ssh-keygen -y -f ~/.ssh/id_ed25519_example_com
+```
+
+Connect to a host
+```shell
+$ ssh -i ~/.ssh/id_ed25519_example_com <username>@<hostname_or_ip>
+```
