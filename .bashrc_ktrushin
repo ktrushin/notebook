@@ -4,6 +4,8 @@
 PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}:${PWD}\007"'
 PS1="\$ "
 
+shopt -s histappend
+HISTCONTROL=ignoredups
 export HISTTIMEFORMAT="%F %T "
 export HISTSIZE=65536
 
