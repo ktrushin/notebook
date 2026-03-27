@@ -49,7 +49,7 @@ Alternatively, you can do the following. On the host machine:
 $ infocmp xterm-kitty > kitty.terminfo
 ```
 Then, in the container:
-```
+```shell
 $ tic kitty.terminfo
 ```
 Ignore the `older tic versions may treat the description field as an alias` error if any.
