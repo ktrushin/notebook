@@ -19,10 +19,11 @@ $ linux-amd64_deb.tgz
 $ tar -xzf linux-amd64_deb.tgz
 $ pushd linux-amd64_deb/
 $ sudo apt-get install libccid pcscd libpcsclite1 pcsc-tools opensc
-$ ./install_gui.sh
+$ sudo ./install_gui.sh
 ```
 In the list of modules going to be installed, choose (by pressing space key on
 the keyboard) `Modules for smart cards and tokens` (not exactly accurate name).
+One can choose a module to install by pressing the space key on the keyboard.
 
 Alternatively, install the following packages.
 ```
@@ -35,7 +36,7 @@ Versions may change (e.g. `13000` instead of`12600`).
 Install the `Адаптер Рутокен Плагин` browser extension and change the default
 token pin code to a new one.
 
-Install two more browsers plugings as described
+(Optional) Install two more browsers plugings as described
 [here](https://www.cryptopro.ru/products/cades/plugin) and
 [here](https://docs.cryptopro.ru/cades/plugin/plugin-installation-unix).
 
@@ -45,6 +46,8 @@ one needs to launch the `pcscd` service maually:
 $ sudo systemctl start pcscd
 $ systemctl status pcscd
 ```
+
+Install Saby as decribed [here](https://saby.ru/help/start/teh_terms/sbisplugin/install/not_start)
 
 How to use `КриптоПро`:
 01. Insert the token into the USB-port
