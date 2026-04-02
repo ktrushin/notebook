@@ -6,50 +6,60 @@ Main manual:
 $ man openssl
 ```
 It describes the utility in general. For a standard command `openssl xxx`,
-there usually is a manual page `man xxx`. For instance `man rsa` or `man x509`.
-The full list of those submanuals can be found at the bottom of openssl main
-man page.
+there usually is a manual page `man openssl-xxx`, for instance `man openssl-req`
+or `man openssl-x509`. The full list of those submanuals can be found at the
+bottom of openssl main man page.
 
-## Generate a private key and a certificate
+Please see the `create_pki.sh` script.
+
+# Obtains Human-Readable Information
+Print the information from a certificate, key or certificate signing request and
+check their integrity where applicable:
 ```shell
-$ openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
-   -subj "/C=US/ST=WA/L=Seattle/O=Meow/OU=IT/CN=www.meow.com" \
-   -keyout www.meow.com.key -out www.meow.com.cert
-```
-
-This only generates a certificate with bare mininum of information resulting
-in serious tools or libraries (e.g. python's requrests) complaining with
-errors/warnings when trying to connect to the server with such a certificate.
-
-A cleaner approach consists of the following steps:
-1. generate root key and certificate for pseudo-certificate authority (CA);
-2. using the root certificate, generate the key and the certificate
-   for a domain;
-3. make client trust the root certificate, e.g. for python's requests library,
-   pass the path to the root certificate in `verify` parameter of
-   the function `request`.
-Steps #1 and #2 can be accomplished with `create_key_and_cert.sh` script.
-The step #3 may require additional actions. For instance, if the server
-with the certificate generated in #2 uses the domain `foo.com` but is launched
-on the localhost, the `requests` module may require non-standard DNS as
-described [here](https://stackoverflow.com/a/57477670/3111000).
-
-## Check key/cert pair
-Check a certificate, key or certificate signing request and print info
-about them:
-```shell
-$ openssl x509 -in server.crt -text -noout
-$ openssl rsa -in server.key -check
+$ openssl x509 -text -noout -in server.crt
+$ openssl pkey -text -noout -check -in server.key
 $ openssl req -text -noout -verify -in server.csr
 ```
 
+## Verify Key and Certificate Pair
 Check that the key and the certificate match by testing if their md5
 checksums match
+For RSA keys:
 ```shell
 openssl x509 -noout -modulus -in server.crt | openssl md5
 openssl rsa  -noout -modulus -in server.key | openssl md5
 ```
+or modern alternative:
+```shell
+$ openssl x509 -noout -pubkey -in certificate.crt | openssl md5
+$ openssl pkey -pubout -in private.key | openssl md5
+```
+or even simpler:
+```bash
+diff <(openssl x509 -noout -pubkey -in certificate.crt) <(openssl pkey -pubout -in private.key)
+```
 
+Verify a certificate or certificate chain. There is more that one option for
+the most use-cases.
+```shell
+$ openssl verify -verbose -CAfile root-ca.crt server.crt
+$
+$ openssl verify -verbose -CAfile root-ca.crt -untrusted intermediate-ca.crt client.crt
+$
+$ cat client.crt intermediate-ca.crt > client_bundle.pem
+$ openssl verify -verbose -CAfile root-ca.crt client_bundle.pem
+$
+$ openssl verify -verbose -CAfile root-ca.crt -untrusted grand-child-ca.crt \
+  -untrusted child-ca.crt leaf.crt
+$
+$ cat grand-child-ca.crt child-ca.crt > intermediate-crt-bundle.pem
+$ openssl verify -verbose -CAfile root-ca.crt -untrusted intermediate-crt-bundle.pem leaf.crt
+$
+$ cat leaf.crt grand-child-ca.crt child-ca.crt > bundle.pem
+$ openssl verify -verbose -CAfile root-ca.crt bundle.pem
+```
+
+# Misc
 Generage a private keys:
 ```shell
 $ openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
@@ -58,19 +68,18 @@ $ openssl genpkey -algorithm ed25519 -out test_ed25519.pem \
   -aes-128-cbc --pass pass:hello
 ```
 
-Show a key:
+Exameple of using OpenSSL's server and client:
 ```shell
-$ openssl pkey -in /path/to/the/key.pem
-```
-
-View a certificate
-```shell
-$ openssl x509 -in etc/pki2/root-ca.crt -text -noout
-```
-
-Verify a certificate chain:
-```shell
-$ openssl verify -verbose -CAfile root-ca.crt -untrusted intermediate-ca.crt client.crt
+$ cat /path/to/pki/client.key /path/to/pki/client.crt > /path/to/pki/client.pem
+$ openssl s_client \
+    -CAfile /path/to/pki/ca.crt \
+    -cert /path/to/pki/client.pem \
+    -connect 127.0.0.1:4433
+$ openssl s_server \
+    -CAfile /path/to/pki/ca.crt \
+    -cert /path/to/pki/server.crt \
+    -key /path/to/pki/server.key \
+    -port 4433 -Verify 1 -tls1_2
 ```
 
 OpenSSL's directory and certificate directories on Ubuntu 22.04
