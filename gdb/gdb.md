@@ -37,7 +37,7 @@ For more info, please see:
 - https://sourceware.org/gdb/current/onlinedocs/gdb.html/Files.html
 - https://sourceware.org/gdb/current/onlinedocs/gdb.html/Source-Path.html
 
-The following example debug the `einfo` executable with the `-h` option. The
+The following example debugs the `einfo` executable with the `-h` option. The
 executable is from the `epub-utils` binary package, which in turn is built from
 the `ebooks-tools` source package. The `ebook-tools-dbg` package places the
 debug symbols in the `/usr/lib/debug` directory

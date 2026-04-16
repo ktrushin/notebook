@@ -32,7 +32,7 @@ Keybindings:
 Install the package to simplify work with panes.
 
 ## The `MarkdownPreview` package
-With the settings specifed in the
+With the settings specified in the
 `sublime/config/sublime-text/Packages/User/MarkdownPreview.sublime-settings`
 file, one can press `Ctrl+b` to preview the currently opened markdown file
 in the default browser as a GitHub Flavored Markdown.

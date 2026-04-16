@@ -38,8 +38,8 @@ Follow the instructions of any `ERROR` or `WARNINGS` reported during the
 healthcheck.
 
 ## Support
-If you encournter the `"terminal is not fully functional"` warning (for instance,
-in a Docker constainer's bash shell), install the `kitty-terminfo` package
+If you encounter the `"terminal is not fully functional"` warning (for instance,
+in a Docker container's bash shell), install the `kitty-terminfo` package
 (in the container)
 ```shell
 $ sudo apt-get install kitty-terminfo

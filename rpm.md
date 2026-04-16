@@ -30,7 +30,7 @@ $ rpm -qp --conflicts /path/to/package.rpm
 
 List package changelog:
 ```shell
-$ rpm -qp --changelong /path/to/package.rpm
+$ rpm -qp --changelog /path/to/package.rpm
 ```
 
 List package info

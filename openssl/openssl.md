@@ -39,8 +39,8 @@ or even simpler:
 diff <(openssl x509 -noout -pubkey -in certificate.crt) <(openssl pkey -pubout -in private.key)
 ```
 
-Verify a certificate or certificate chain. There is more that one option for
-the most use-cases.
+Verify a certificate or certificate chain. There is more than one option for
+the most use cases.
 ```shell
 $ openssl verify -verbose -CAfile root-ca.crt server.crt
 $
@@ -60,7 +60,7 @@ $ openssl verify -verbose -CAfile root-ca.crt bundle.pem
 ```
 
 # Misc
-Generage a private keys:
+Generate private keys:
 ```shell
 $ openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
   -out test_rsa.pem -aes-128-cbc --pass pass:hello
@@ -68,7 +68,7 @@ $ openssl genpkey -algorithm ed25519 -out test_ed25519.pem \
   -aes-128-cbc --pass pass:hello
 ```
 
-Exameple of using OpenSSL's server and client:
+Example of using OpenSSL's server and client:
 ```shell
 $ cat /path/to/pki/client.key /path/to/pki/client.crt > /path/to/pki/client.pem
 $ openssl s_client \

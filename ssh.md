@@ -12,7 +12,7 @@ Please add `-q -N ''` at the end of the shell command above if you want to
 generate a key without a passphrase non-interactively.
 
 
-Check that the passphase works:
+Check that the passphrase works:
 ```shell
 $ ssh-keygen -y -f ~/.ssh/id_ed25519_example_com
 ```

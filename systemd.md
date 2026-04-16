@@ -16,7 +16,7 @@ In addition to a service file, which is usually installed as a part of a deb/rpm
 package and should _not_ be changed by an end user, one can put custom
 configuration (which inherits settings from the service file) in
 `/etc/systemd/system/my_proxy.service.d/` directory. Usually,
-the directory contains one file `limits.conf` which emposes the limits on the
+the directory contains one file `limits.conf` which imposes the limits on the
 system resources the service is allowed to consume. Here are an
 [example](https://ma.ttias.be/increase-open-files-limit-in-mariadb-on-centos-7-with-systemd/)
 and the [reference](https://www.freedesktop.org/software/systemd/man/systemd.exec.html).

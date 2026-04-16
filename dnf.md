@@ -8,9 +8,9 @@ $ dnf info vim
 $ dnf autoremove
 ```
 
-List pacakges:
+List packages:
 ```shell
-$ dnf list avalable
+$ dnf list available
 $ dnf list installed
 $ dnf list <package name>
 $ dnf list <regex>
@@ -19,7 +19,7 @@ $ dnf --showduplicates list <package name>
 $ dnf whatprovides /bin/ps
 ```
 
-Find the package with provides the file:
+Find the package that provides the file:
 ```shell
 $ dnf whatprovides /bin/ps
 $ dnf provides /bin/ps

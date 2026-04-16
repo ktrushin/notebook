@@ -65,7 +65,7 @@ Restart GUI:
 4. change back to the virtual console where GUI is bind to using <ctrl+alt+f7>
 
 
-Install system monitor GNOME extentions on Ubuntu 20.04:
+Install system monitor GNOME extensions on Ubuntu 20.04:
 * install required packages
   ```shell
   $ sudo apt-get install gir1.2-gtop-2.0 gir1.2-nm-1.0 gir1.2-clutter-1.0 \
@@ -73,7 +73,7 @@ Install system monitor GNOME extentions on Ubuntu 20.04:
   ```
 * restart the machine
 
-Install system monitor GNOME extentions on Ubuntu 22.04:
+Install system monitor GNOME extensions on Ubuntu 22.04:
 * remove `chrome-gnome-shell`
   ```shell
   $ sudo apt-get purge chrome-gnome-shell
@@ -97,7 +97,7 @@ Install system monitor GNOME extentions on Ubuntu 22.04:
     gnome-system-monitor
   ```
 * restart the machine
-* install the `system-monitor-next` GHOME extension
+* install the `system-monitor-next` GNOME extension
 
 
 Lock screen when lid is closed:
@@ -110,7 +110,7 @@ HandleLidSwitchExternalPower=lock
 ```
 
 Install Windows 11 into VirtualBox: before installing, disable
-Setting -> System -> Enable EFI (special OSes only)
+Settings -> System -> Enable EFI (special OSes only)
 
 
 Install HP MFP m137fnw:
@@ -147,7 +147,7 @@ X selection: copy primary to clipboard
 Logitech Spotlight
 Connect the device _via bluetooth_, not via a dongle. To enable the pairing mode
 on the device, hold the top and the bottom buttons simultaneously for 3 sec.
-To connect an alrady paired device, press the big `>` button three times.
+To connect an already paired device, press the big `>` button three times.
 Start `projecteur` using the command:
 ```shell
 $ QT_QPA_PLATFORM=xcb projecteur

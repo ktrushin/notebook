@@ -2,7 +2,7 @@
 
 Please see more sophisticated examples of docker commands and Dockerfile
 in the [ssi](https://github.com/ktrushin/ssi) project:
-* [docker/ubuntuu_focal.dockerfile](https://github.com/ktrushin/ssi/blob/master/docker/ubuntu_focal.dockerfile)
+* [docker/ubuntu_focal.dockerfile](https://github.com/ktrushin/ssi/blob/master/docker/ubuntu_focal.dockerfile)
 * [tools/docker.sh](https://github.com/ktrushin/ssi/blob/master/tools/docker.sh)
 
 Some random command examples:

@@ -1,3 +1,3 @@
 # cookbook
 
-Recipies, dotfiles, configs and more
+Recipes, dotfiles, configs and more

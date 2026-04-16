@@ -1,17 +1,17 @@
 # GnuPG
 
-Generate (interactively) an RSA primary key with encryptiion subkey:
+Generate (interactively) an RSA primary key with encryption subkey:
 ```shell
 $ gpg --full-generate-key
 ```
 
-Generate a non-expiring ed25519 primary key with encryptiion subkey:
+Generate a non-expiring ed25519 primary key with encryption subkey:
 ```shell
 $ gpg --quick-generate-key 'Konstantin Trushin <konstantin.trushin@gmail.com>' future-default default never
 ```
-See [here](https://wiki.debian.org/Subkeys) for adding a signining subkey.
+See [here](https://wiki.debian.org/Subkeys) for adding a signing subkey.
 
-Usefull additional opitons for `--list-keys` and `--list-secret-keys`:
+Useful additional options for `--list-keys` and `--list-secret-keys`:
   * --keyid-format=long
   * --fingerprint
   * --with-subkey-fingerprints
@@ -52,4 +52,4 @@ Choose specific subkey to sign:
 ```shell
 gpg -u 0xDF2D08D3! --sign .....
 ```
-Please note the exclamaition mark `!` after the keyid
+Please note the exclamation mark `!` after the keyid

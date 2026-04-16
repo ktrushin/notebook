@@ -65,7 +65,7 @@ $ git branch --sort=-committerdate
 ```
 
 Show all commits authored by Konstantin Trushin (and their stats)
-siince specific date, ordered by date:
+since specific date, ordered by date:
 ```shell
 git log --all --author=Trushin --stat --date-order --since="2021-08-31"
 ```
@@ -170,4 +170,4 @@ M path/to/submodule
 Falling back to patching base and 3-way merge...
 No changes -- Patch already applied.
 ```
-We are all good after that. Check with `git log --all --oneline --grpah`.
+We are all good after that. Check with `git log --all --oneline --graph`.
