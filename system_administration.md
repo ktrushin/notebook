@@ -65,14 +65,6 @@ Restart GUI:
 4. change back to the virtual console where GUI is bind to using <ctrl+alt+f7>
 
 
-Install system monitor GNOME extensions on Ubuntu 20.04:
-* install required packages
-  ```shell
-  $ sudo apt-get install gir1.2-gtop-2.0 gir1.2-nm-1.0 gir1.2-clutter-1.0 \
-      gnome-system-monitor gnome-shell-extension-system-monitor
-  ```
-* restart the machine
-
 Install system monitor GNOME extensions on Ubuntu 22.04:
 * remove `chrome-gnome-shell`
   ```shell
@@ -98,6 +90,9 @@ Install system monitor GNOME extensions on Ubuntu 22.04:
   ```
 * restart the machine
 * install the `system-monitor-next` GNOME extension
+* alternatively, go the extension GitHub
+  [page](https://github.com/mgalgs/gnome-shell-system-monitor-next-applet)
+  and build from sources as described there
 
 
 Lock screen when lid is closed:
