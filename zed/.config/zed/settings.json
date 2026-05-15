@@ -1,0 +1,38 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "selection_highlight": false,
+  "use_system_prompts": false,
+  "use_system_path_prompts": false,
+  "git": {
+    "inline_blame": {
+      "enabled": false,
+    },
+  },
+  "project_panel": {
+    "entry_spacing": "standard",
+  },
+  "buffer_line_height": "standard",
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Zed (Default)",
+    "dark": "Zed (Default)",
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 14,
+  "theme": {
+    "mode": "dark",
+    "light": "Zedokai Classic",
+    "dark": "Zedokai Darker Classic",
+  },
+  "wrap_guides": [80, 100],
+}

@@ -1,0 +1,129 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+    },
+  },
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      // "j k": "vim::NormalBefore"
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-l": "editor::SelectLargerSyntaxNode"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "alt-shift-right": "editor::SelectLargerSyntaxNode"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-h": "editor::SelectSmallerSyntaxNode"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "alt-shift-left": "editor::SelectSmallerSyntaxNode"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-right": "editor::MoveToNextSubwordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-right": "editor::MoveToNextSubwordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-right": "editor::SelectToNextSubwordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-shift-right": "editor::SelectToNextSubwordEnd"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-left": "editor::MoveToPreviousSubwordStart"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-left": "editor::MoveToPreviousSubwordStart"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-left": "editor::SelectToPreviousSubwordStart"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-shift-left": "editor::SelectToPreviousSubwordStart"
+    }
+  },
+  {
+    "context": "Editor",
+      "bindings": {
+      "ctrl-b ctrl-m": "editor::ToggleBookmark"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-b ctrl-n": "editor::GoToNextBookmark"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-b ctrl-p": "editor::GoToPreviousBookmark"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-b ctrl-v": "editor::ViewBookmarks"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-b ctrl-d": "workspace::ClearBookmarks"
+    }
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "enter": "project_panel::OpenPermanent"
+    }
+  }
+]
