@@ -26,8 +26,8 @@ Check that the key and the certificate match by testing if their md5
 checksums match
 For RSA keys:
 ```shell
-openssl x509 -noout -modulus -in server.crt | openssl md5
-openssl rsa  -noout -modulus -in server.key | openssl md5
+$ openssl x509 -noout -modulus -in server.crt | openssl md5
+$ openssl rsa  -noout -modulus -in server.key | openssl md5
 ```
 or modern alternative:
 ```shell
@@ -36,7 +36,7 @@ $ openssl pkey -pubout -in private.key | openssl md5
 ```
 or even simpler:
 ```bash
-diff <(openssl x509 -noout -pubkey -in certificate.crt) <(openssl pkey -pubout -in private.key)
+$ diff <(openssl x509 -noout -pubkey -in certificate.crt) <(openssl pkey -pubout -in private.key)
 ```
 
 Verify a certificate or certificate chain. There is more than one option for
