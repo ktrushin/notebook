@@ -7,7 +7,6 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  "selection_highlight": false,
   "use_system_prompts": false,
   "use_system_path_prompts": false,
   "git": {
