@@ -21,7 +21,7 @@ $ pushd linux-amd64_deb/
 $ sudo apt-get install libccid pcscd libpcsclite1 pcsc-tools opensc
 $ sudo ./install_gui.sh
 ```
-In the list of modules going to be installed, choose (by pressing space key on
+In the list of modules going to be installed, choose (by pressing the space key on
 the keyboard) `Modules for smart cards and tokens` (not exactly accurate name).
 One can choose a module to install by pressing the space key on the keyboard.
 

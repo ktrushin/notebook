@@ -10,7 +10,7 @@ to the code in shared libraries using different location specifiers.
 $ gdb --args path/to/the/binary arg0 arg1 arg2
 (gdb) break main
 (gdb) run
-Breakpoint 1.1 maiin(...
+Breakpoint 1.1 main(...
 (gdb) break <path/to/shared/library/source.cpp>:<line_number>
 (gdb) break <function_from_a_shared_library>
 (gdb) continue
@@ -43,12 +43,12 @@ the `ebooks-tools` source package. The `ebook-tools-dbg` package places the
 debug symbols in the `/usr/lib/debug` directory
 ```
 $ sudo apt-get update && sudo apt-get install epub-utils ebook-tools-dbg
-$ mkdir /tmp/soruce_pkgs
-$ cd /tmp/soruce_pkgs
+$ mkdir /tmp/source_pkgs
+$ cd /tmp/source_pkgs
 $ apt-get source ebook-tools
 $ gdb
 (gdb) set debug-file-directory /usr/lib/debug
-(gdb) directory /tmp/soruce_pkgs/ebook-tools-0.2.2/
+(gdb) directory /tmp/source_pkgs/ebook-tools-0.2.2/
 (gdb) file /usr/bin/einfo
 Reading symbols from /usr/bin/einfo...
 Reading symbols from /usr/lib/debug/.build-id/e9/2d9fd3ec4cb522c5ce4c79b9b58b634ccbddd8.debug...

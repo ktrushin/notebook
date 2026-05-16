@@ -21,8 +21,8 @@ ABI tools (apt packages):
 
 When debugging an executable linked against shared libraries, those libraries
 (and their debug symbols) are loaded only when the executable is run. Hence,
-the symbols (and files) are unavailable before the the gdb `run` command is
-executed, and it is impossible to set a breakpoint to location in the shared
+the symbols (and files) are unavailable before the gdb `run` command is
+executed, and it is impossible to set a breakpoint to a location in the shared
 libraries. To work around that issue, set a breakpoint to the `main` function,
 then execute the gdb `run` command. When the execution of the inferior process
 stops at the breakpoint, the dynamic libraries have been already loaded, so now

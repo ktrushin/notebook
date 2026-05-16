@@ -3,7 +3,7 @@
 ```shell
 $ sudo apt-get install sshfs
 ```
-If command
+If the command
 ```shell
 $ cat /etc/group | grep 'fuse'
 ```

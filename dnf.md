@@ -43,7 +43,7 @@ $ dnf update httpd-2.2.3
 
 Update package cache:
 ```shell
-S sudo dnf check-update
+$ sudo dnf check-update
 ```
 
 Execute a command without checking network repos:

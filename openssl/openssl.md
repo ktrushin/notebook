@@ -12,7 +12,7 @@ bottom of openssl main man page.
 
 Please see the `create_pki.sh` script.
 
-# Obtains Human-Readable Information
+# Obtain Human-Readable Information
 Print the information from a certificate, key or certificate signing request and
 check their integrity where applicable:
 ```shell
@@ -23,7 +23,7 @@ $ openssl req -text -noout -verify -in server.csr
 
 ## Verify Key and Certificate Pair
 Check that the key and the certificate match by testing if their md5
-checksums match
+checksums match.
 For RSA keys:
 ```shell
 $ openssl x509 -noout -modulus -in server.crt | openssl md5

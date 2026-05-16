@@ -24,7 +24,7 @@ Remove images without containers:
 docker image prune -af
 ```
 
-Create the image with custom ccache directory
+Create the image with a custom ccache directory
 ```shell
 docker commit --change "ENV CCACHE_DIR=/var/ccache" \
   -m "set up custom ccache directory" e826901cde2a ktrushin/libconfig:1.1

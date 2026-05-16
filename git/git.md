@@ -23,9 +23,9 @@ Evaluate the changes introduced by a feature branch:
 ```shell
 $ git fetch -apt
 $ git difftool --dir-diff --no-symlinks origin/master...my_feature_branch &
-$ git difftool --dir-diff --no-symlinks origin/master...origin/their_feature_brach &
+$ git difftool --dir-diff --no-symlinks origin/master...origin/their_feature_branch &
 $ git vdiff origin/master...my_feature_branch &
-$ git vdiff origin/master...origin/their_feature_brach &
+$ git vdiff origin/master...origin/their_feature_branch &
 ```
 
 Show what changed:
