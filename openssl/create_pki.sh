@@ -12,11 +12,14 @@
 # - `ca` - Certificate Authority
 # - `csr` - Certificate Signing Request
 
+# Note. In this example, we use December 31, year 9999, time 23:59:59 GMT
+# as the expiration date to effectively make certificates never expire.
+
 set -eu
 
 create_root_ca_creds() {
     org=$1
-    openssl req -x509 -new -sha256 -nodes -days 36600 -newkey ed25519 \
+    openssl req -x509 -new -sha256 -nodes -not_after 99991231235959Z -newkey ed25519 \
         -subj "/C=US/ST=MA/L=Boston/O=$org/OU=IT/CN=$org.com" \
         -addext "keyUsage = critical, keyCertSign" \
         -addext "basicConstraints = critical, CA:TRUE" \
@@ -32,7 +35,7 @@ sign_csr() {
     trap "rm -f $tmp_file" EXIT
     echo "authorityKeyIdentifier = keyid:always,issuer:always\n" > $tmp_file
 
-    openssl x509 -req -sha256 -days 36600 -copy_extensions copy -extfile $tmp_file \
+    openssl x509 -req -sha256 -not_after 99991231235959Z -copy_extensions copy -extfile $tmp_file \
         -CA $ca_org.crt -CAkey $ca_org.key -CAcreateserial \
         -in $org.csr -out $org.crt
 
