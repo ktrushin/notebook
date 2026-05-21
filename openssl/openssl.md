@@ -71,15 +71,15 @@ $ openssl genpkey -algorithm ed25519 -out test_ed25519.pem \
 Example of using OpenSSL's server and client:
 ```shell
 $ cat /path/to/pki/client.key /path/to/pki/client.crt > /path/to/pki/client.pem
-$ openssl s_client \
-    -CAfile /path/to/pki/ca.crt \
-    -cert /path/to/pki/client.pem \
-    -connect 127.0.0.1:4433
 $ openssl s_server \
     -CAfile /path/to/pki/ca.crt \
     -cert /path/to/pki/server.crt \
     -key /path/to/pki/server.key \
-    -port 4433 -Verify 1 -tls1_2
+    -port 4433 -Verify 1
+$ openssl s_client \
+    -CAfile /path/to/pki/ca.crt \
+    -cert /path/to/pki/client.pem \
+    -connect 127.0.0.1:4433
 ```
 
 OpenSSL's directory and certificate directories on Ubuntu 22.04
