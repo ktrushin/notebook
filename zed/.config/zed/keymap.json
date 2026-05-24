@@ -125,5 +125,29 @@
     "bindings": {
       "enter": "project_panel::OpenPermanent"
     }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-alt-shift-k": "editor::DuplicateLineUp"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-shift-up": "editor::DuplicateLineUp"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-alt-shift-j": "editor::DuplicateLineDown"
+    }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-alt-shift-down": "editor::DuplicateLineDown"
+    }
   }
 ]
