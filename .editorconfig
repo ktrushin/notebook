@@ -13,3 +13,10 @@ indent_size = 2
 
 [{*.go,go.mod,go.sum,Makefile,rules}]
 indent_style = tab
+
+[*.sh]
+# The following lines are configuration for the `shfmt` tool.
+# Please see `man shfmt` for more information.
+shell_variant = posix
+space_redirects = true
+switch_case_indent = true

@@ -1,0 +1,2 @@
+# Posix shell has the `pipefail` option since the 2024 standard
+disable=SC3040

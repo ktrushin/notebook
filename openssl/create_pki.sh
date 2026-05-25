@@ -16,6 +16,7 @@
 # as the expiration date to effectively make certificates never expire.
 
 set -eu
+set -o pipefail
 
 create_root_ca_creds() {
     org=$1
@@ -33,7 +34,7 @@ sign_csr() {
 
     tmp_file=$(mktemp)
     trap 'rm -f "$tmp_file"' EXIT
-    printf "authorityKeyIdentifier = keyid:always,issuer:always\n" >"$tmp_file"
+    printf "authorityKeyIdentifier = keyid:always,issuer:always\n" > "$tmp_file"
 
     openssl x509 -req -sha256 -not_after 99991231235959Z -copy_extensions copy -extfile "$tmp_file" \
         -CA "$ca_org.crt" -CAkey "$ca_org.key" -CAcreateserial \
@@ -79,7 +80,7 @@ create_org_creds "server" "root-ca"
 
 create_child_ca_creds "intermediate-ca" "root-ca"
 create_org_creds "client" "intermediate-ca"
-cat client.key client.crt intermediate-ca.crt >client.pem
+cat client.key client.crt intermediate-ca.crt > client.pem
 
 create_org_creds "client2" "root-ca"
-cat client2.key client2.crt >client2.pem
+cat client2.key client2.crt > client2.pem
