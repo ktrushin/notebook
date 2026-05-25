@@ -32,14 +32,14 @@ sign_csr() {
     ca_org=$2
 
     tmp_file=$(mktemp)
-    trap "rm -f $tmp_file" EXIT
-    echo "authorityKeyIdentifier = keyid:always,issuer:always\n" > $tmp_file
+    trap 'rm -f "$tmp_file"' EXIT
+    printf "authorityKeyIdentifier = keyid:always,issuer:always\n" >"$tmp_file"
 
-    openssl x509 -req -sha256 -not_after 99991231235959Z -copy_extensions copy -extfile $tmp_file \
-        -CA $ca_org.crt -CAkey $ca_org.key -CAcreateserial \
-        -in $org.csr -out $org.crt
+    openssl x509 -req -sha256 -not_after 99991231235959Z -copy_extensions copy -extfile "$tmp_file" \
+        -CA "$ca_org.crt" -CAkey "$ca_org.key" -CAcreateserial \
+        -in "$org.csr" -out "$org.crt"
 
-    rm $tmp_file
+    rm "$tmp_file"
     trap - EXIT
 }
 
@@ -52,9 +52,9 @@ create_child_ca_creds() {
         -addext "keyUsage = critical, keyCertSign" \
         -addext "basicConstraints = critical, CA:TRUE" \
         -addext "subjectKeyIdentifier = hash" \
-        -keyout $child_ca_org.key -out $child_ca_org.csr
+        -keyout "$child_ca_org.key" -out "$child_ca_org.csr"
 
-    sign_csr $child_ca_org $parent_ca_org
+    sign_csr "$child_ca_org" "$parent_ca_org"
 }
 
 create_org_creds() {
@@ -68,9 +68,9 @@ create_org_creds() {
         -addext "extendedKeyUsage = serverAuth,clientAuth" \
         -addext "basicConstraints = CA:FALSE" \
         -addext "subjectKeyIdentifier = hash" \
-        -keyout $org.key -out $org.csr
+        -keyout "$org.key" -out "$org.csr"
 
-    sign_csr $org $ca_org
+    sign_csr "$org" "$ca_org"
 }
 
 create_root_ca_creds "root-ca"
@@ -79,7 +79,7 @@ create_org_creds "server" "root-ca"
 
 create_child_ca_creds "intermediate-ca" "root-ca"
 create_org_creds "client" "intermediate-ca"
-cat client.key client.crt intermediate-ca.crt > client.pem
+cat client.key client.crt intermediate-ca.crt >client.pem
 
 create_org_creds "client2" "root-ca"
-cat client2.key client2.crt > client2.pem
+cat client2.key client2.crt >client2.pem
