@@ -149,5 +149,29 @@
     "unbind": {
       "ctrl-alt-shift-down": "editor::DuplicateLineDown"
     }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-u": "editor::MoveToStartOfParagraph"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-u": "editor::SelectToStartOfParagraph"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-m": "editor::MoveToEndOfParagraph"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-shift-m": "editor::SelectToEndOfParagraph"
+    }
   }
 ]
