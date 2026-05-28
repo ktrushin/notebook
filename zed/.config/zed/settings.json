@@ -31,7 +31,7 @@
   "theme": {
     "mode": "dark",
     "light": "Zedokai Classic",
-    "dark": "Zedokai Darker Classic",
+    "dark": "Zedokai Classic",
   },
   "wrap_guides": [80, 100],
 }
