@@ -1,5 +1,32 @@
 # System Administration
 
+Set `fish` as the default shell:
+01. Install `fish`:
+    ```shell
+    $ sudo apt-get install -y fish
+    ```
+01. Determine the path the `fish` executable:
+    ```shell
+    $ command -v fish
+    /usr/bin/fish
+    ```
+    The actual path can vary depending on the system configuration.
+01. Check where the path is in `/etc/shells`:
+    ```shell
+    $ cat /etc/shells
+    /bin/bash
+    /bin/zsh
+    /usr/bin/fish
+    ```
+01. If not, add it there:
+    ```shell
+    $ sudo sh -c 'echo /usr/bin/fish >> /etc/shells'
+    ```
+01. Set `fish` as the default shell:
+    ```shell
+    $ chsh -s /usr/bin/fish
+    ```
+
 Add a new user
 ```shell
 $ useradd <USERNAME> -u <USER_ID> -s /bin/bash
