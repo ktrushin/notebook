@@ -9,5 +9,4 @@ HISTCONTROL=ignoredups
 export HISTTIMEFORMAT="%F %T "
 export HISTSIZE=65536
 
-alias nvim="nvim -c 'set clipboard+=unnamedplus' $@"
-export EDITOR="nvim -c 'set clipboard+=unnamedplus'"
+export EDITOR=nvim
