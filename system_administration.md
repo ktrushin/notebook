@@ -27,6 +27,15 @@ Set `fish` as the default shell:
     $ chsh -s /usr/bin/fish
     ```
 
+Permanently increase open file limit for a user:
+01. Execute the following:
+    ```shell
+    $ echo "$USER soft nofile 1048576" | sudo tee -a /etc/security/limits.conf
+    $ echo "$USER hard nofile 1048576" | sudo tee -a /etc/security/limits.conf
+    $ echo 'session required pam_limits.so' | sudo tee -a /etc/pam.d/common-session
+    ```
+01. Restart the machine or log out and log in
+
 Add a new user
 ```shell
 $ useradd <USERNAME> -u <USER_ID> -s /bin/bash
