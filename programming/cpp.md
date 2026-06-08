@@ -8,6 +8,7 @@ $ echo | gcc -xc++ -E -v -
 Core pattern
 ```shell
 $ man core
+$ sudo mkdir -p -m 777 /var/core/
 $ sudo sysctl -w kernel.core_pattern='/var/core/core.%e.%t.%p.%i'
 $ sysctl kernel.core_pattern
 ```
