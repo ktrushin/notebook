@@ -8,7 +8,8 @@ $ echo | gcc -xc++ -E -v -
 Core pattern
 ```shell
 $ man core
-$ echo '/var/core/core.%e.%t.%p.%i' | sudo tee /proc/sys/kernel/core_pattern
+$ sudo sysctl -w kernel.core_pattern='/var/core/core.%e.%t.%p.%i'
+$ sysctl kernel.core_pattern
 ```
 
 ABI tools (apt packages):
