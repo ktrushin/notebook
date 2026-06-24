@@ -186,3 +186,22 @@ $ QT_QPA_PLATFORM=xcb projecteur
 Check `Enable multi-screen overlay`. Change other settings if required, then
 close the window. Projecteur remains active (see the icon on the top panel) and
 doesn't intervene into your presentation.
+
+
+Test connectivity to the default gateway:
+```shell
+$ ip route show
+default via 192.168.100.1 ...
+...
+$  ping -W 0.5 -c 20 192.168.100.1
+PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
+64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.58 ms
+...
+```
+or
+```shell
+$ ping -W 0.5 -c 20 $(ip route show | head -n 1 | cut -f3 -d' ')
+PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
+64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.60 ms
+...
+```
