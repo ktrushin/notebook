@@ -7,171 +7,38 @@
 // from the command palette.
 [
   {
-    "context": "Workspace",
+    "context": "Editor",
     "bindings": {
-      // "shift shift": "file_finder::Toggle"
+      "alt-right": "editor::MoveToNextSubwordEnd",
+      "alt-shift-right": "editor::SelectToNextSubwordEnd",
+      "alt-left": "editor::MoveToPreviousSubwordStart",
+      "alt-shift-left": "editor::SelectToPreviousSubwordStart",
+
+      "alt-u": "editor::MoveToStartOfParagraph",
+      "alt-shift-u": "editor::SelectToStartOfParagraph",
+      "alt-m": "editor::MoveToEndOfParagraph",
+      "alt-shift-m": "editor::SelectToEndOfParagraph",
+
+      "ctrl-shift-enter": "editor::NewlineAbove",
+      "ctrl-enter": "editor::NewlineBelow",
+
+      "ctrl-alt-shift-k": "editor::DuplicateLineUp",
+      "ctrl-alt-shift-j": "editor::DuplicateLineDown",
+
+      "alt-shift-l": "editor::SelectLargerSyntaxNode",
+      "alt-shift-h": "editor::SelectSmallerSyntaxNode",
+
+      "ctrl-b ctrl-m": "editor::ToggleBookmark",
+      "ctrl-b ctrl-n": "editor::GoToNextBookmark",
+      "ctrl-b ctrl-p": "editor::GoToPreviousBookmark",
+      "ctrl-b ctrl-v": "editor::ViewBookmarks",
+      "ctrl-b ctrl-d": "workspace::ClearBookmarks",
     },
-  },
-  {
-    "context": "Editor && vim_mode == insert",
-    "bindings": {
-      // "j k": "vim::NormalBefore"
-    },
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-l": "editor::SelectLargerSyntaxNode"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "alt-shift-right": "editor::SelectLargerSyntaxNode"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-h": "editor::SelectSmallerSyntaxNode"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "alt-shift-left": "editor::SelectSmallerSyntaxNode"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-right": "editor::MoveToNextSubwordEnd"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-right": "editor::MoveToNextSubwordEnd"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-right": "editor::SelectToNextSubwordEnd"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-shift-right": "editor::SelectToNextSubwordEnd"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-left": "editor::MoveToPreviousSubwordStart"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-left": "editor::MoveToPreviousSubwordStart"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-left": "editor::SelectToPreviousSubwordStart"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-shift-left": "editor::SelectToPreviousSubwordStart"
-    }
-  },
-  {
-    "context": "Editor",
-      "bindings": {
-      "ctrl-b ctrl-m": "editor::ToggleBookmark"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-b ctrl-n": "editor::GoToNextBookmark"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-b ctrl-p": "editor::GoToPreviousBookmark"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-b ctrl-v": "editor::ViewBookmarks"
-    }
-  },
-  {
-    "context": "Workspace",
-    "bindings": {
-      "ctrl-b ctrl-d": "workspace::ClearBookmarks"
-    }
   },
   {
     "context": "ProjectPanel",
     "bindings": {
-      "enter": "project_panel::OpenPermanent"
-    }
+      "enter": "project_panel::OpenPermanent",
+    },
   },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-alt-shift-k": "editor::DuplicateLineUp"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-shift-up": "editor::DuplicateLineUp"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-alt-shift-j": "editor::DuplicateLineDown"
-    }
-  },
-  {
-    "context": "Editor",
-    "unbind": {
-      "ctrl-alt-shift-down": "editor::DuplicateLineDown"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-u": "editor::MoveToStartOfParagraph"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-u": "editor::SelectToStartOfParagraph"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-m": "editor::MoveToEndOfParagraph"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "alt-shift-m": "editor::SelectToEndOfParagraph"
-    }
-  }
 ]
