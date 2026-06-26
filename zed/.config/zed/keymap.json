@@ -33,12 +33,6 @@
     },
   },
   {
-    "context": "ProjectPanel",
-    "bindings": {
-      "enter": "project_panel::OpenPermanent",
-    },
-  },
-  {
     "context": "!AcpThread > Editor && mode == full",
     "unbind": {
       "ctrl-enter": "assistant::InlineAssist",
@@ -47,6 +41,12 @@
       "ctrl-a ctrl-enter": "assistant::InlineAssist",
       "ctrl-enter": "editor::NewlineBelow",
       "ctrl-shift-enter": "editor::NewlineAbove",
+    },
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "enter": "project_panel::OpenPermanent",
     },
   },
 ]
