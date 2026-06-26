@@ -19,9 +19,6 @@
       "alt-m": "editor::MoveToEndOfParagraph",
       "alt-shift-m": "editor::SelectToEndOfParagraph",
 
-      "ctrl-shift-enter": "editor::NewlineAbove",
-      "ctrl-enter": "editor::NewlineBelow",
-
       "ctrl-alt-shift-k": "editor::DuplicateLineUp",
       "ctrl-alt-shift-j": "editor::DuplicateLineDown",
 
@@ -39,6 +36,17 @@
     "context": "ProjectPanel",
     "bindings": {
       "enter": "project_panel::OpenPermanent",
+    },
+  },
+  {
+    "context": "!AcpThread > Editor && mode == full",
+    "unbind": {
+      "ctrl-enter": "assistant::InlineAssist",
+    },
+    "bindings": {
+      "ctrl-a ctrl-enter": "assistant::InlineAssist",
+      "ctrl-enter": "editor::NewlineBelow",
+      "ctrl-shift-enter": "editor::NewlineAbove",
     },
   },
 ]
