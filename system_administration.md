@@ -26,6 +26,11 @@ Set `fish` as the default shell:
     ```shell
     $ chsh -s /usr/bin/fish
     ```
+Changing the login (aka the default) shell to a non-POSIX-compliant shell is
+__not recommended__ as it can break some system scripts. Instead, set `fish` as
+the shell for your terminal emulator and IDE whenever necessary: `kitty` and
+`zed` are already configured this way (see, for instance, the `kitty/kitty.conf`
+and `zed/.config/zed/settings.json` files in this repository).
 
 Permanently increase open file limit for a user:
 01. Execute the following:
