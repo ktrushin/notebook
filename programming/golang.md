@@ -2,8 +2,8 @@
 
 Installing golang:
 ```shell
-$ export GOROOT="$HOME/.go"
-$ export GOPATH="$HOME/.local/go"
+$ set -Ux GOROOT="$HOME/.go"
+$ set -Ux GOPATH="$HOME/.local/go"
 $ wget -q -O - https://git.io/vQhTU | bash
 ```
 Please see https://github.com/canha/golang-tools-install-script for more details.
