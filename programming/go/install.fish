@@ -2,6 +2,8 @@
 
 # Define your custom locations
 set -l goroot "$HOME/.local/go"
+# As per the XDG Base Directory spec, `~/.local/share` is explicitly meant for
+# persistent application data
 set -l gopath "$HOME/.local/share/go"
 
 # Fetch latest stable version and install into custom GOROOT
