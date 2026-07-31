@@ -19,9 +19,9 @@ $ cat /etc/docker/daemon.json
 }
 ```
 
-Remove images without containers:
+Remove unused objects:
 ```shell
-docker image prune -af
+docker system prune
 ```
 
 Create the image with a custom ccache directory
