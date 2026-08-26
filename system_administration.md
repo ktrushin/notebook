@@ -150,16 +150,20 @@ Settings -> System -> Enable EFI (special OSes only)
 
 
 Install HP MFP m137fnw:
-01. Connect the printer to the Wi-Fi network via HP Smart app
-02. Discover the printer via Settings->Printers menu
-02. Install airscan:
+01. Add yourself to a couple of groups and restart the system:
+```shell
+$ sudo usermod -aG lp,scanner $USER
+```
+02. Connect the printer to the Wi-Fi network via HP Smart app
+03. Discover the printer via Settings->Printers menu
+04. Install airscan:
 ```shell
 $ sudo apt-get install sane-airscan
 ```
-03. Go to [here](https://support.hp.com/us-en/drivers/printers),
+05. Go to [here](https://support.hp.com/us-en/drivers/printers),
     choose Linux -> Ubuntu and download the driver.
-04. Untar the driver and execute `install.sh` with sudo
-05. In the `Settings->Printers` menu select the printer settings, hit
+06. Untar the driver and execute `install.sh` with sudo
+07. In the `Settings->Printers` menu select the printer settings, hit
     the `Printer Details` button, update the printer name to the desired one and
     hit the `Install PPD file` button, choose the
     `/usr/share/ppd/uld-hp/HP_Laser_MFP_13x_Series.ppd` file.
