@@ -1,36 +1,27 @@
 # System Administration
 
-Set `fish` as the default shell:
-01. Install `fish`:
-    ```shell
-    $ sudo apt-get install -y fish
-    ```
-01. Determine the path the `fish` executable:
-    ```shell
-    $ command -v fish
-    /usr/bin/fish
-    ```
-    The actual path can vary depending on the system configuration.
-01. Check where the path is in `/etc/shells`:
-    ```shell
-    $ cat /etc/shells
-    /bin/bash
-    /bin/zsh
-    /usr/bin/fish
-    ```
-01. If not, add it there:
-    ```shell
-    $ sudo sh -c 'echo /usr/bin/fish >> /etc/shells'
-    ```
-01. Set `fish` as the default shell:
-    ```shell
-    $ chsh -s /usr/bin/fish
-    ```
-Changing the login (aka the default) shell to a non-POSIX-compliant shell is
-__not recommended__ as it can break some system scripts. Instead, set `fish` as
-the shell for your terminal emulator and IDE whenever necessary: `kitty` and
-`zed` are already configured this way (see, for instance, the `kitty/kitty.conf`
-and `zed/.config/zed/settings.json` files in this repository).
+## User management
+```shell
+# add a new user
+$ useradd <USERNAME> -u <USER_ID> -s /bin/bash
+$ useradd ktrushin -u 1000 -g 1000 --create-home --user-group
+$
+# add an existing user to an existing group
+$ sudo usermod -aG <group_name> <user_name>
+$ sudo usermod -aG lp,scanner $USER
+$
+# change user uid and gid
+$ usermod -u <NEWUID> <LOGIN>
+$ groupmod -g <NEWGID> <GROUP>
+```
+
+## Resource monitoring and limiting
+Memory a process consumes (in KB)
+```shell
+$ ps --no-header -C <process_command> -o rss | awk '{rss += $1};END{print rss}'
+$ smem -P <process_command> -c pss -H | \
+  python3 -c "from fileinput import input; print(sum(map(int, input())))"
+```
 
 Permanently increase open file limit for a user:
 01. Execute the following:
@@ -41,63 +32,24 @@ Permanently increase open file limit for a user:
     ```
 01. Restart the machine or log out and log in
 
-Add a new user
-```shell
-$ useradd <USERNAME> -u <USER_ID> -s /bin/bash
-$ useradd ktrushin -u 1000 -g 1000 --create-home --user-group
-```
 
-Add an existing user to an existing group
+## Miscellaneous Recipes
+The `date` command cheat sheet:
 ```shell
-$ sudo usermod -aG <group_name> <user_name>
-```
-
-Change user uid and gid
-```shell
-$ usermod -u <NEWUID> <LOGIN>
-$ groupmod -g <NEWGID> <GROUP>
+# get date as unixtime
+$ date +%s
+#
+# convert a date to unixtime
+$ date -d "2015-09-04 13:35:00" +%s
+#
+# convert unixtime to a date
+$ date -d @1451573940
 ```
 
 Merge two directories:
 ```shell
 $ rsync -a source_dir/* dest_dir/
 ```
-
-Memory a process consumes (in KB)
-```shell
-$ ps --no-header -C <process_command> -o rss | awk '{rss += $1};END{print rss}'
-$ smem -P <process_command> -c pss -H | \
-  python3 -c "from fileinput import input; print(sum(map(int, input())))"
-```
-
-List hardware on a PC
-```shell
-$ lshw
-$ lspci
-$ lsusb
-$ inxi
-```
-
-Get date as unixtime
-```shell
-$ date +%s
-```
-
-Convert a date to unixtime
-```shell
-$ date -d "2015-09-04 13:35:00" +%s
-```
-
-Convert unixtime to a date
-```shell
-$ date -d @1451573940
-```
-
-Fix Ctrl-Shift-e in terminator
-```shell
-$ ibus-setup
-```
-Then remove the keybinding for Emoji
 
 Restart GUI:
 1. change to another virtual console using <ctrl+alt+f2>
@@ -106,6 +58,11 @@ Restart GUI:
 4. change back to the virtual console where GUI is bind to using <ctrl+alt+f7>
 
 
+Install Windows 11 into VirtualBox: before installing, disable
+Settings -> System -> Enable EFI (special OSes only)
+
+
+## Ubuntu Post-Installation Setup
 Install system monitor GNOME extensions on Ubuntu 22.04:
 * remove `chrome-gnome-shell`
   ```shell
@@ -145,11 +102,47 @@ HandleLidSwitch=lock
 HandleLidSwitchExternalPower=lock
 ```
 
-Install Windows 11 into VirtualBox: before installing, disable
-Settings -> System -> Enable EFI (special OSes only)
+X selection: copy primary to clipboard
+On Ubuntu 24.04 and 26.04 the `Ctrl + Insert` keybinding does that out of the box
+For earlier versions, do the following:
+- install `xsel`
+  ```
+  $ sudo apt-get install xsel
+  ```
+- add a keyboard shortcut `Ctrl + Insert` with the command
+  `sh -c 'xsel --output --primary | xsel --input --clipboard'`
+  and the name `x_selections_copy_primary_to_clipboard`
 
 
-Install HP MFP m137fnw:
+## Networking
+Test connectivity to the default gateway:
+```shell
+$ ip route show
+default via 192.168.100.1 ...
+...
+$  ping -W 0.5 -c 20 192.168.100.1
+PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
+64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.58 ms
+...
+```
+or
+```shell
+$ ping -W 0.5 -c 20 $(ip route show | head -n 1 | cut -f3 -d' ')
+PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
+64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.60 ms
+...
+```
+
+## Hardware
+List hardware on a PC
+```shell
+$ lshw
+$ lspci
+$ lsusb
+$ inxi
+```
+
+Set up HP MFP m137fnw:
 01. Add yourself to a couple of groups and restart the system:
 ```shell
 $ sudo usermod -aG lp,scanner $USER
@@ -171,21 +164,12 @@ $ sudo apt-get install sane-airscan
     hit the `Install PPD file` button, choose the
     `/usr/share/ppd/uld-hp/HP_Laser_MFP_13x_Series.ppd` file.
 
+
 A data scrubbing command to prevent a bit rot on an external flash-memory-based
 drive (SSD, USB flash drive):
 ```
 $ sudo dd if=/dev/disk/by-label/<drive_name> of=/dev/null iflag=nocache status=progress
 ```
-
-X selection: copy primary to clipboard
-- install `xsel`
-  ```
-  $ sudo apt-get install xsel
-  ```
-- add a keyboard shortcut `Ctrl + Insert` with the command
-  `sh -c 'xsel --output --primary | xsel --input --clipboard'`
-  and the name `x_selections_copy_primary_to_clipboard`
-
 
 Logitech Spotlight
 Connect the device _via bluetooth_, not via a dongle. To enable the pairing mode
@@ -198,22 +182,3 @@ $ QT_QPA_PLATFORM=xcb projecteur
 Check `Enable multi-screen overlay`. Change other settings if required, then
 close the window. Projecteur remains active (see the icon on the top panel) and
 doesn't intervene into your presentation.
-
-
-Test connectivity to the default gateway:
-```shell
-$ ip route show
-default via 192.168.100.1 ...
-...
-$  ping -W 0.5 -c 20 192.168.100.1
-PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
-64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.58 ms
-...
-```
-or
-```shell
-$ ping -W 0.5 -c 20 $(ip route show | head -n 1 | cut -f3 -d' ')
-PING 192.168.100.1 (192.168.100.1) 56(84) bytes of data.
-64 bytes from 192.168.100.1: icmp_seq=1 ttl=64 time=2.60 ms
-...
-```
