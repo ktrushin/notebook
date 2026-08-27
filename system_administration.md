@@ -154,7 +154,10 @@ Install HP MFP m137fnw:
 ```shell
 $ sudo usermod -aG lp,scanner $USER
 ```
-02. Connect the printer to the Wi-Fi network via HP Smart app
+02. Connect the printer to the Wi-Fi network with the printer's menu:
+    - using the wifi password or
+    - pin code in WPS
+    - or push-button WPS flow
 03. Discover the printer via Settings->Printers menu
 04. Install airscan:
 ```shell
