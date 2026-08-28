@@ -144,22 +144,26 @@ $ inxi
 
 Set up HP MFP m137fnw:
 01. Add yourself to a couple of groups and restart the system:
-```shell
-$ sudo usermod -aG lp,scanner $USER
-```
-02. Connect the printer to the Wi-Fi network with the printer's menu:
+    ```shell
+    $ sudo usermod -aG lp,scanner $USER
+    ```
+01. Connect the printer to the Wi-Fi network with the printer's menu:
     - using the wifi password or
     - pin code in WPS
     - or push-button WPS flow
-03. Discover the printer via Settings->Printers menu
-04. Install airscan:
-```shell
-$ sudo apt-get install sane-airscan
-```
-05. Go to [here](https://support.hp.com/us-en/drivers/printers),
+01. Via a printer's menu, timeout before going to the stand-by mode to 3 hours,
+    otherwise network connectivity may be lost and you will have to manually
+    awake the printer and restart the computer to rediscover it
+01. Update the printer's firmware via its menu
+01. Discover the printer on a laptopvia Settings->Printers menu
+01. Install airscan:
+    ```shell
+    $ sudo apt-get install sane-airscan
+    ```
+01. Go to [here](https://support.hp.com/us-en/drivers/printers),
     choose Linux -> Ubuntu and download the driver.
-06. Untar the driver and execute `install.sh` with sudo
-07. In the `Settings->Printers` menu select the printer settings, hit
+01. Untar the driver and execute `install.sh` with sudo
+01. In the `Settings->Printers` menu select the printer settings, hit
     the `Printer Details` button, update the printer name to the desired one and
     hit the `Install PPD file` button, choose the
     `/usr/share/ppd/uld-hp/HP_Laser_MFP_13x_Series.ppd` file.
