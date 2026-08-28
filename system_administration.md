@@ -52,10 +52,10 @@ $ rsync -a source_dir/* dest_dir/
 ```
 
 Restart GUI:
-1. change to another virtual console using <ctrl+alt+f2>
-2. login
-3. run `sudo systemctl restart systemd-logind` or `sudo systemctl restart gdm`
-4. change back to the virtual console where GUI is bind to using <ctrl+alt+f7>
+01. change to another virtual console using <ctrl+alt+f2>
+01. login
+01. run `sudo systemctl restart systemd-logind` or `sudo systemctl restart gdm`
+01. change back to the virtual console where GUI is bind to using <ctrl+alt+f7>
 
 
 Install Windows 11 into VirtualBox: before installing, disable
