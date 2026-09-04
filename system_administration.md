@@ -46,6 +46,11 @@ $ date -d "2015-09-04 13:35:00" +%s
 $ date -d @1451573940
 ```
 
+Cound words in primary selection:
+```shell
+$ xclip -selection primary -o | wc -w
+```
+
 Merge two directories:
 ```shell
 $ rsync -a source_dir/* dest_dir/
