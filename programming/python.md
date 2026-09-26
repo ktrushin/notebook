@@ -1,5 +1,21 @@
 # Python
 
+## UV
+Upgrade Python to new version
+```shell
+$ uv python list
+$ uv python pin 3.14
+$ uv lock --upgrade
+$ uv sync
+```
+
+Upgrade a dependency to the latest version
+Use `pytest` as an example:
+```shell
+$ uv add --dev 'pytest>=9.0.3'
+```
+
+## Misc
 The `pip3` tool installs packages into the
 `/usr/local/lib/python3.8/dist-packages` directory.
 
