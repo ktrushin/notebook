@@ -107,9 +107,9 @@ HandleLidSwitch=lock
 HandleLidSwitchExternalPower=lock
 ```
 
-X selection: copy primary to clipboard
-On Ubuntu 24.04 and 26.04 the `Ctrl + Insert` keybinding does that out of the box
-For earlier versions, do the following:
+## X selection
+Copy primary to clipboard. On Ubuntu 24.04 and 26.04 the `Ctrl + Insert`
+keybinding does that out of the box. For earlier versions, do the following:
 - install `xsel`
   ```
   $ sudo apt-get install xsel
@@ -117,6 +117,11 @@ For earlier versions, do the following:
 - add a keyboard shortcut `Ctrl + Insert` with the command
   `sh -c 'xsel --output --primary | xsel --input --clipboard'`
   and the name `x_selections_copy_primary_to_clipboard`
+
+Also, dump primary to the standard output and count the words:
+```shell
+$ xclip -selection primary -o | wc -w
+```
 
 
 ## Networking
