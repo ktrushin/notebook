@@ -121,6 +121,20 @@ Repository overview:
 $ git log --oneline --graph --all --simplify-by-decoration
 ```
 
+List the tagging dates of the twenty most recent _annotated_ tags
+```shell
+$ git for-each-ref --sort=-taggerdate \
+    --format='%(if)%(objecttype):equals="tag"%(then)%(taggerdate:iso)%(end)' \
+    'refs/tags/' | \
+  head -n 20
+$
+$ # only the tags that follow the `X.Y.Z` naming scheme
+$ git for-each-ref --sort=-taggerdate \
+    --format='%(objecttype) %(refname:short) %(taggerdate:iso)' refs/tags | \
+  awk '/^tag (0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2} /{$1=$2=""; $0=$0; $1=$1; print $0}' | \
+  head -n 20
+```
+
 Resolving conflict in submodule commit while rebasing my feature branch on
 the `master` branch:
 ```shell
