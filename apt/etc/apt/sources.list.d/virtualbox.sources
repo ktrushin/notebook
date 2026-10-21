@@ -1,0 +1,7 @@
+X-Repolist-Name: VirtualBox
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: resolute
+Components: contrib
+Architectures: amd64
+Signed-By: /usr/share/keyrings/oracle-virtualbox-2016.gpg
