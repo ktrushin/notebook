@@ -7,6 +7,21 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "outline_panel": {
+    "dock": "right"
+  },
+  "collaboration_panel": {
+    "dock": "right"
+  },
+  "agent": {
+    "dock": "left",
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "git_panel": {
+    "dock": "right"
+  },
+  "base_keymap": "VSCode",
   "use_system_prompts": false,
   "use_system_path_prompts": false,
   "git": {
@@ -15,6 +30,7 @@
     },
   },
   "project_panel": {
+    "dock": "right",
     "entry_spacing": "standard",
   },
   "buffer_line_height": "standard",
@@ -34,9 +50,19 @@
     "dark": "Zedokai Classic",
   },
   "wrap_guides": [80, 100],
+  "languages": {
+    "Fish": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "fish_indent"
+        }
+      }
+    }
+  },
   "terminal": {
     "shell": {
-      "program": "/usr/bin/fish",
-    },
-  },
+      "program": "/usr/bin/fish"
+    }
+  }
 }
