@@ -5,7 +5,7 @@
 [init]
     defaultBranch = main
 [core]
-    editor = nvim -c 'set clipboard+=unnamedplus'
+    editor = vim
     autocrlf = input
 [color]
     ui = true
