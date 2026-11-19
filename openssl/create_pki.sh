@@ -77,6 +77,7 @@ create_org_creds() {
 create_root_ca_creds "root-ca"
 
 create_org_creds "server" "root-ca"
+cat server.key server.crt > server.pem
 
 create_child_ca_creds "intermediate-ca" "root-ca"
 create_org_creds "client" "intermediate-ca"
