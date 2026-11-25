@@ -25,6 +25,11 @@
       "alt-shift-l": "editor::SelectLargerSyntaxNode",
       "alt-shift-h": "editor::SelectSmallerSyntaxNode",
 
+      "alt-w": "editor::MoveToStartOfLargerSyntaxNode",
+      "shift-alt-w": "editor::SelectToStartOfLargerSyntaxNode",
+      "alt-s": "editor::MoveToEndOfLargerSyntaxNode",
+      "shift-alt-s": "editor::SelectToEndOfLargerSyntaxNode",
+
       "ctrl-b ctrl-m": "editor::ToggleBookmark",
       "ctrl-b ctrl-n": "editor::GoToNextBookmark",
       "ctrl-b ctrl-p": "editor::GoToPreviousBookmark",
@@ -38,7 +43,7 @@
       "ctrl-enter": "assistant::InlineAssist",
     },
     "bindings": {
-      "ctrl-a ctrl-enter": "assistant::InlineAssist",
+      "alt-a": "assistant::InlineAssist",
       "ctrl-enter": "editor::NewlineBelow",
       "ctrl-shift-enter": "editor::NewlineAbove",
     },
