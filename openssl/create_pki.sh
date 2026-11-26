@@ -15,6 +15,8 @@
 # Note. In this example, we use December 31, year 9999, time 23:59:59 GMT
 # as the expiration date to effectively make certificates never expire.
 
+# Note. Use `rsa:4096` as a `-newkey` argument instead of `ed25519` to generate RSA keys.
+
 set -eu
 set -o pipefail
 
