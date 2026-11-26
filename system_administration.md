@@ -16,6 +16,21 @@ $ groupmod -g <NEWGID> <GROUP>
 ```
 
 ## Resource monitoring and limiting
+Install the `perf` tool:
+```shell
+$ sudo apt-get update && sudo apt-get -y install linux-tools-common linux-tools-$(uname -r)
+$ echo 'kernel.perf_event_paranoid = 1' | sudo tee /etc/sysctl.d/99-perf.conf
+$ echo 'kernel.kptr_restrict = 0' | sudo tee /etc/sysctl.d/99-kptr.conf
+$ sudo sysctl --system
+$ perf --version
+$ sudo perf top
+$ perf record -F 99 -g -o test.perf -- /path/to/command [..<args>]
+$ # if <command> is compiled without `-fno-omit-frame-pointer`, add
+$ # `--call-graph dwarf` but that makes profiling much slower
+$ perf record -F 99 -g --call-graph dwarf -o test.perf -- /path/to/command [..<args>]
+$ perf report -i test.perf
+```
+
 Memory a process consumes (in KB)
 ```shell
 $ ps --no-header -C <process_command> -o rss | awk '{rss += $1};END{print rss}'
